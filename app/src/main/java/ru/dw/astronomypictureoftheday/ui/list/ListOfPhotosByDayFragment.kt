@@ -8,11 +8,14 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
 import ru.dw.astronomypictureoftheday.databinding.FragmentListPichureDayBinding
+import ru.dw.astronomypictureoftheday.ui.list.viewmodel.ListPhotosViewModel
+import ru.dw.astronomypictureoftheday.util.getDaysAgo
+
 
 class ListOfPhotosByDayFragment : Fragment() {
     private var _binding: FragmentListPichureDayBinding? = null
     private val binding:FragmentListPichureDayBinding get() = _binding!!
-    private val viewModel:ListPhotosViewModel by lazy {
+    private val viewModel: ListPhotosViewModel by lazy {
         ViewModelProvider(this)[ListPhotosViewModel::class.java]
     }
 
@@ -28,6 +31,7 @@ class ListOfPhotosByDayFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         Toast.makeText(requireContext(), "ok", Toast.LENGTH_SHORT).show()
+        viewModel.sendRequest(getDaysAgo(0))
     }
 
     companion object {
@@ -39,4 +43,5 @@ class ListOfPhotosByDayFragment : Fragment() {
         super.onDestroy()
         _binding = null
     }
+
 }
