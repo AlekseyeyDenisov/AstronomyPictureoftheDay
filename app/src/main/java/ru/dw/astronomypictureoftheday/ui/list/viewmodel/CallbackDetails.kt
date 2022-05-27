@@ -1,8 +1,9 @@
 package ru.dw.astronomypictureoftheday.ui.list.viewmodel
 
-import ru.dw.astronomypictureoftheday.domen.ResponseDataItemDay
+
+import ru.dw.astronomypictureoftheday.model.DayPhotoResponse
 
 interface CallbackDetails {
-    fun onResponseSuccess(success: List<ResponseDataItemDay>)
+    fun onResponseSuccess(successes: List<DayPhotoResponse>)
     fun onFail(error: String)
 }

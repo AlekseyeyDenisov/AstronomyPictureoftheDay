@@ -1,4 +1,4 @@
-package ru.dw.astronomypictureoftheday.util
+package ru.dw.astronomypictureoftheday.utils
 
 import android.annotation.SuppressLint
 import java.text.SimpleDateFormat

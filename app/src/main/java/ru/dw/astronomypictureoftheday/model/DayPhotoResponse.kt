@@ -1,8 +1,8 @@
-package ru.dw.astronomypictureoftheday.domen
+package ru.dw.astronomypictureoftheday.model
 
 import com.google.gson.annotations.SerializedName
 
-data class ResponseDataItemDay(
+data class DayPhotoResponse(
 
     val date: String,
     val copyright: String,
