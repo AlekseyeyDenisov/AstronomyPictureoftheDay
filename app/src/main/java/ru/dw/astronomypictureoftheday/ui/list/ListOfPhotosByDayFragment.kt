@@ -1,23 +1,30 @@
 package ru.dw.astronomypictureoftheday.ui.list
 
+import android.icu.text.SimpleDateFormat
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import com.google.android.material.datepicker.MaterialDatePicker
 import ru.dw.astronomypictureoftheday.R
 import ru.dw.astronomypictureoftheday.databinding.FragmentListPichureDayBinding
 import ru.dw.astronomypictureoftheday.ui.list.recycler.AdapterPhotoItemNasa
 import ru.dw.astronomypictureoftheday.ui.list.viewmodel.ListPhotosViewModel
-import ru.dw.astronomypictureoftheday.utils.getDaysAgo
+import ru.dw.astronomypictureoftheday.utils.convertDateFormat
+import ru.dw.astronomypictureoftheday.utils.getCurrentDays
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.util.*
 
 
 class ListOfPhotosByDayFragment : Fragment() {
     private var _binding: FragmentListPichureDayBinding? = null
-    private val binding:FragmentListPichureDayBinding get() = _binding!!
+    private val binding: FragmentListPichureDayBinding get() = _binding!!
     private val viewModel: ListPhotosViewModel by lazy {
         ViewModelProvider(this)[ListPhotosViewModel::class.java]
     }
@@ -28,20 +35,44 @@ class ListOfPhotosByDayFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentListPichureDayBinding.inflate(inflater,container,false)
+        _binding = FragmentListPichureDayBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        Toast.makeText(requireContext(), "ok", Toast.LENGTH_SHORT).show()
-
         initRecycler()
         initViewModel()
+        initFab()
     }
 
+
+    private fun initFab() {
+
+        binding.floatingActionButton.setOnClickListener {
+            val dateRangePicker =
+                MaterialDatePicker.Builder.datePicker()
+                    .setTitleText("Select dates")
+                    .setSelection(MaterialDatePicker.todayInUtcMilliseconds())
+
+                    .build()
+
+            dateRangePicker.show(requireActivity().supportFragmentManager, "tagDataPiker")
+
+            dateRangePicker.addOnPositiveButtonClickListener {
+                Log.d("@@@", "dateRangePicker: ${convertDateFormat(dateRangePicker.headerText)}")
+                val newDate = convertDateFormat(dateRangePicker.headerText)
+                viewModel.sendRequest(newDate)
+            }
+
+        }
+    }
+
+
+
     private fun initViewModel() {
-        viewModel.sendRequest(getDaysAgo(0))
+        Log.d("@@@", "initViewModel: ${getCurrentDays()}")
+        viewModel.sendRequest(getCurrentDays())
         viewModel.getLiveData().observe(viewLifecycleOwner) {
             render(it)
         }
@@ -64,16 +95,27 @@ class ListOfPhotosByDayFragment : Fragment() {
     private fun render(data: PictureAppState) {
         when (data) {
             is PictureAppState.Error -> {
-                Toast.makeText(requireContext(), getString(R.string.something_went_wrong), Toast.LENGTH_SHORT).show()
+                visibilityLoading(false)
+                Toast.makeText(
+                    requireContext(),
+                    getString(R.string.something_went_wrong),
+                    Toast.LENGTH_LONG
+                ).show()
             }
             is PictureAppState.Success -> {
-                Log.d("@@@", "render Success: "+ data.dayPhotoResponse[0].title)
+                visibilityLoading(false)
                 adapterPhoto.submitList(data.dayPhotoResponse)
             }
             PictureAppState.Loading -> {
-                Log.d("@@@", "render: Loading")
+                visibilityLoading(true)
+
             }
         }
+    }
+
+    private fun visibilityLoading(visibility: Boolean) {
+        if (visibility) binding.loadingItem.visibility = View.VISIBLE
+        else binding.loadingItem.visibility = View.GONE
     }
 
 }

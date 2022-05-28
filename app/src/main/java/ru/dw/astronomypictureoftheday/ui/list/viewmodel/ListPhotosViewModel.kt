@@ -17,18 +17,17 @@ class ListPhotosViewModel(
         return liveData
     }
 
-    fun sendRequest(date:String){
+    fun sendRequest(date: String) {
         liveData.postValue(PictureAppState.Loading)
-        repository.getDataList().getListDayPicture(date,object :CallbackDetails{
+        repository.getDataList().getListDayPicture(date, object : CallbackDetails {
             override fun onResponseSuccess(successes: List<DayPhotoResponse>) {
-                liveData.postValue(PictureAppState.Success(successes))
-                successes.forEach{
-                    Log.d("@@@", "onResponseSuccess: ${it.title}")
-                }
 
+                liveData.postValue(PictureAppState.Success(successes))
+                Log.d("@@@", "onResponseSuccess: $successes")
             }
 
             override fun onFail(error: String) {
+                liveData.postValue(PictureAppState.Error(error))
                 Log.d("@@@", "onFail: $error")
             }
 

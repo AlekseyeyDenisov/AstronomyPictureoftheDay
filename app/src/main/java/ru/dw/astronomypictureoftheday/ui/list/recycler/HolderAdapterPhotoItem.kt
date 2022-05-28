@@ -10,6 +10,7 @@ class HolderAdapterPhotoItem(view: View) : RecyclerView.ViewHolder(view) {
     fun bind(dayPhoto: DayPhotoResponse) {
         ItemPhotoDayBinding.bind(itemView).apply {
             titleItem.text = dayPhoto.title
+            dataItem.text = dayPhoto.date
             photoItem.load(dayPhoto.url)
         }
 
