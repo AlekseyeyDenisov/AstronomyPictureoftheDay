@@ -63,4 +63,8 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.4.1'
     //Coil image download (аналог Picasso и Glide, написанный на Kotlin)
     implementation("io.coil-kt:coil:2.0.0")
+    //room
+    apply plugin: 'kotlin-kapt'
+    implementation 'androidx.room:room-runtime:2.4.2'
+    kapt 'androidx.room:room-compiler:2.4.2'
 }

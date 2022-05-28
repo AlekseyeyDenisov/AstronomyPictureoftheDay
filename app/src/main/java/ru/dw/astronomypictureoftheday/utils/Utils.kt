@@ -1,6 +1,8 @@
 package ru.dw.astronomypictureoftheday.utils
 
 import android.annotation.SuppressLint
+import ru.dw.astronomypictureoftheday.data.room.DayPhotoEntity
+import ru.dw.astronomypictureoftheday.model.DayPhotoResponse
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -17,4 +19,15 @@ fun convertDateFormat(date: String): String {
     val parseDate = inputFormat.parse(date)
     val outputFormat = SimpleDateFormat("YYYY-MM-dd")
     return outputFormat.format(parseDate.time)
+}
+
+fun convertSuccessesToEntity(dayPhotoResponse: DayPhotoResponse):DayPhotoEntity{
+    return DayPhotoEntity(
+        0,
+        dayPhotoResponse.date,
+        dayPhotoResponse.hdUrl,
+        dayPhotoResponse.explanation,
+        dayPhotoResponse.title,
+        dayPhotoResponse.url
+    )
 }

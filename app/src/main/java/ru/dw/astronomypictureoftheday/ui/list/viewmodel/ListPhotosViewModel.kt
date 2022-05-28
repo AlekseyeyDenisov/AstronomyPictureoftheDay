@@ -3,15 +3,19 @@ package ru.dw.astronomypictureoftheday.ui.list.viewmodel
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import ru.dw.astronomypictureoftheday.MyApp
 import ru.dw.astronomypictureoftheday.model.DayPhotoResponse
 import ru.dw.astronomypictureoftheday.repository.RepositoryIpl
 import ru.dw.astronomypictureoftheday.ui.list.PictureAppState
+import ru.dw.astronomypictureoftheday.utils.convertSuccessesToEntity
 
 
 class ListPhotosViewModel(
     private val repository: Repository = RepositoryIpl,
     private val liveData: MutableLiveData<PictureAppState> = MutableLiveData()
 ) : ViewModel() {
+
+    val helperRoom = MyApp.getDBRoom()
 
     fun getLiveData(): MutableLiveData<PictureAppState> {
         return liveData
@@ -21,9 +25,16 @@ class ListPhotosViewModel(
         liveData.postValue(PictureAppState.Loading)
         repository.getDataList().getListDayPicture(date, object : CallbackDetails {
             override fun onResponseSuccess(successes: List<DayPhotoResponse>) {
-
-                liveData.postValue(PictureAppState.Success(successes))
-                Log.d("@@@", "onResponseSuccess: $successes")
+                Thread {
+                    try {
+                        helperRoom.setDayPhoto(convertSuccessesToEntity(successes[0]))
+                    } catch (e: NullPointerException) {
+                        e.message?.let {
+                            liveData.postValue(PictureAppState.Error(e.message!!))
+                        }
+                    }
+                }.start()
+                liveData.postValue(PictureAppState.Success)
             }
 
             override fun onFail(error: String) {

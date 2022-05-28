@@ -1,4 +1,4 @@
-package ru.dw.astronomypictureoftheday.data
+package ru.dw.astronomypictureoftheday.data.retrofit
 
 import com.google.gson.GsonBuilder
 import retrofit2.Call

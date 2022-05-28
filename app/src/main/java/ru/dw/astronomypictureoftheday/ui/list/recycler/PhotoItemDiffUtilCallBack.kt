@@ -1,19 +1,19 @@
 package ru.dw.astronomypictureoftheday.ui.list.recycler
 
 import androidx.recyclerview.widget.DiffUtil
-import ru.dw.astronomypictureoftheday.model.DayPhotoResponse
+import ru.dw.astronomypictureoftheday.data.room.DayPhotoEntity
 
-class PhotoItemDiffUtilCallBack: DiffUtil.ItemCallback<DayPhotoResponse>() {
+class PhotoItemDiffUtilCallBack: DiffUtil.ItemCallback<DayPhotoEntity>() {
     override fun areItemsTheSame(
-        oldPhotoResponse: DayPhotoResponse,
-        newPhotoResponse: DayPhotoResponse
+        oldPhotoResponse: DayPhotoEntity,
+        newPhotoResponse: DayPhotoEntity
     ): Boolean {
         return oldPhotoResponse.date == newPhotoResponse.date
     }
 
     override fun areContentsTheSame(
-        oldPhotoResponse: DayPhotoResponse,
-        newPhotoResponse: DayPhotoResponse
+        oldPhotoResponse: DayPhotoEntity,
+        newPhotoResponse: DayPhotoEntity
     ): Boolean {
         return oldPhotoResponse == newPhotoResponse
     }

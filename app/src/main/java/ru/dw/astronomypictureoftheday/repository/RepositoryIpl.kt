@@ -1,6 +1,6 @@
 package ru.dw.astronomypictureoftheday.repository
 
-import ru.dw.astronomypictureoftheday.data.RetrofitHelper
+import ru.dw.astronomypictureoftheday.data.retrofit.RetrofitHelper
 import ru.dw.astronomypictureoftheday.ui.list.viewmodel.Repository
 
 object RepositoryIpl: Repository {
