@@ -3,8 +3,6 @@ package ru.dw.astronomypictureoftheday.ui.list
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.os.Message
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,12 +11,12 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.datepicker.MaterialDatePicker
 import ru.dw.astronomypictureoftheday.R
 import ru.dw.astronomypictureoftheday.databinding.FragmentListPichureDayBinding
+import ru.dw.astronomypictureoftheday.ui.list.components.DayPickersDate
+import ru.dw.astronomypictureoftheday.ui.list.components.OnDatePicker
 import ru.dw.astronomypictureoftheday.ui.list.recycler.AdapterPhotoItemNasa
 import ru.dw.astronomypictureoftheday.ui.list.viewmodel.ListPhotosViewModel
-import ru.dw.astronomypictureoftheday.utils.convertDateFormat
 import ru.dw.astronomypictureoftheday.utils.getCurrentDays
 
 
@@ -43,9 +41,9 @@ class ListPhotosDayNasaFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         initRecycler()
         initViewModel()
-        checkDateToRequest(getCurrentDays())
         initFab()
         swipedItem()
+        checkDateToRequest(getCurrentDays(), true)
 
     }
 
@@ -65,7 +63,6 @@ class ListPhotosDayNasaFragment : Fragment() {
             }
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                //val item = shopListAdapter.shopList[viewHolder.adapterPosition]
                 val item = adapterPhoto.currentList[viewHolder.adapterPosition]
                 Thread {
                     viewModel.helperRoom.deleteDayPhoto(item)
@@ -81,21 +78,11 @@ class ListPhotosDayNasaFragment : Fragment() {
 
     private fun initFab() {
         binding.floatingActionButton.setOnClickListener {
-            val dateRangePicker =
-                MaterialDatePicker.Builder.datePicker()
-                    .setTitleText("Select dates")
-                    .setSelection(MaterialDatePicker.todayInUtcMilliseconds())
-                    .build()
-
-            dateRangePicker.show(requireActivity().supportFragmentManager, "tagDataPiker")
-
-            dateRangePicker.addOnPositiveButtonClickListener {
-                Log.d("@@@", "dateRangePicker: ${convertDateFormat(dateRangePicker.headerText)}")
-                val newDate = convertDateFormat(dateRangePicker.headerText)
-                checkDateToRequest(newDate)
-
-            }
-
+            DayPickersDate(requireActivity()).materialDatePicker(object : OnDatePicker {
+                override fun getResultDate(newDate: String) {
+                    checkDateToRequest(newDate)
+                }
+            })
         }
     }
 
@@ -145,22 +132,22 @@ class ListPhotosDayNasaFragment : Fragment() {
         else binding.loadingItem.visibility = View.GONE
     }
 
-    private fun checkDateToRequest(date: String) {
+    private fun checkDateToRequest(date: String, firstBoot: Boolean = false) {
         Thread {
-            val isDate = viewModel.helperRoom.getIsDate(date)
-            if (isDate == null) {
+            if (viewModel.helperRoom.getIsDate(date)) {
                 Handler(Looper.getMainLooper()).post {
                     viewModel.sendRequest(date)
                 }
             } else {
                 Handler(Looper.getMainLooper()).post {
-                    showToast(date + getString(R.string.this_date_is))
+                    if (!firstBoot) showToast(date + getString(R.string.this_date_is))
                 }
             }
         }.start()
 
     }
-    fun showToast(message: String){
+
+    private fun showToast(message: String) {
         Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
     }
 

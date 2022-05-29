@@ -25,9 +25,14 @@ fun convertSuccessesToEntity(dayPhotoResponse: DayPhotoResponse):DayPhotoEntity{
     return DayPhotoEntity(
         0,
         dayPhotoResponse.date,
-        dayPhotoResponse.hdUrl,
-        dayPhotoResponse.explanation,
-        dayPhotoResponse.title,
-        dayPhotoResponse.url
+        dayPhotoResponse.hdUrl?:EMPTY_STRING ,
+        dayPhotoResponse.explanation?:EMPTY_STRING,
+        dayPhotoResponse.title?:EMPTY_STRING,
+        dayPhotoResponse.url?:EMPTY_STRING,
+        dayPhotoResponse.mediaType
     )
 }
+
+const val EMPTY_STRING = "empty"
+const val CONSTANT_VIDEO = "video"
+const val CONSTANT_IMAGE = "image"

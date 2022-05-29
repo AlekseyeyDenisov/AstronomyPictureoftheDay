@@ -1,8 +1,6 @@
 package ru.dw.astronomypictureoftheday.data.room
 
-import android.os.Handler
-import android.os.Looper
-import android.util.Log
+
 import androidx.lifecycle.LiveData
 
 class HelperRoom(private val db:DayPhotoDao) {
@@ -18,8 +16,9 @@ class HelperRoom(private val db:DayPhotoDao) {
         db.delete(data)
     }
 
-    fun getIsDate(date:String):DayPhotoEntity{
-       return db.getIsDate(date)
+    fun getIsDate(date:String):Boolean{
+        return db.getIsDate(date) == null
+
     }
 
 }

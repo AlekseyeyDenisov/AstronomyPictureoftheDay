@@ -27,7 +27,9 @@ class ListPhotosViewModel(
             override fun onResponseSuccess(successes: List<DayPhotoResponse>) {
                 Thread {
                     try {
-                        helperRoom.setDayPhoto(convertSuccessesToEntity(successes[0]))
+                        val entity = convertSuccessesToEntity(successes[0])
+                        Log.d("@@@", "onResponseSuccess: ${successes[0]}")
+                        helperRoom.setDayPhoto(entity)
                     } catch (e: NullPointerException) {
                         e.message?.let {
                             liveData.postValue(PictureAppState.Error(e.message!!))
