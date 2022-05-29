@@ -18,7 +18,9 @@ class HolderAdapterPhotoItem(view: View) : RecyclerView.ViewHolder(view) {
                     placeholder(R.drawable.loadig)
                 }
             }
-            else photoItem.load(R.drawable.you_tube)
+            else{
+                photoItem.load(R.drawable.you_tube)
+            }
         }
 
     }

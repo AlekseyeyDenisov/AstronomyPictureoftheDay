@@ -78,7 +78,8 @@ class ListPhotosDayNasaFragment : Fragment() {
 
     private fun initFab() {
         binding.floatingActionButton.setOnClickListener {
-            DayPickersDate(requireActivity()).materialDatePicker(object : OnDatePicker {
+            //DayPickersDate(requireActivity()).materialDatePicker(object : OnDatePicker {
+            DayPickersDate(requireActivity()).datePickerDialog(object : OnDatePicker {
                 override fun getResultDate(newDate: String) {
                     checkDateToRequest(newDate)
                 }
