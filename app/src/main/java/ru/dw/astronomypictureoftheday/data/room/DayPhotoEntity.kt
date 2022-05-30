@@ -13,9 +13,9 @@ data class DayPhotoEntity(
     @PrimaryKey(autoGenerate = true)
     val id:Long,
     val date: String,
-    val hdUrl: String = EMPTY_STRING,
-    val explanation: String = EMPTY_STRING,
-    val title: String = EMPTY_STRING,
-    val url: String =EMPTY_STRING,
-    val mediaType:String = EMPTY_STRING
+    val hdUrl: String,
+    val explanation: String,
+    val title: String,
+    val url: String,
+    val mediaType:String
 ): Parcelable

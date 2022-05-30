@@ -20,6 +20,7 @@
             android:layout_gravity="center"
             android:contentDescription="@string/photo_of_the_day_stub"
             tools:src="@drawable/you_tube"/>
+
         <include
             android:id="@+id/bottom_sheet_layout"
             layout="@layout/bottom_sheet_layout" />

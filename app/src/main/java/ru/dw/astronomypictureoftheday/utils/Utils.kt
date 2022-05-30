@@ -22,12 +22,12 @@ fun convertDateFormat(date: Long): String {
 fun convertSuccessesToEntity(dayPhotoResponse: DayPhotoResponse):DayPhotoEntity{
     return DayPhotoEntity(
         0,
-        dayPhotoResponse.date,
-        dayPhotoResponse.hdUrl,
-        dayPhotoResponse.explanation,
-        dayPhotoResponse.title,
-        dayPhotoResponse.url,
-        dayPhotoResponse.mediaType
+        dayPhotoResponse.date?:EMPTY_STRING,
+        dayPhotoResponse.hdUrl?:EMPTY_STRING,
+        dayPhotoResponse.explanation?:EMPTY_STRING,
+        dayPhotoResponse.title?:EMPTY_STRING,
+        dayPhotoResponse.url?:EMPTY_STRING,
+        dayPhotoResponse.mediaType?:EMPTY_STRING
     )
 }
 
