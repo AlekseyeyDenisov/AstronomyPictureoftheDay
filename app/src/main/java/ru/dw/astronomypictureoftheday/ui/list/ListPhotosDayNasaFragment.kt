@@ -1,16 +1,17 @@
 package ru.dw.astronomypictureoftheday.ui.list
 
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import ru.dw.astronomypictureoftheday.R
 import ru.dw.astronomypictureoftheday.data.room.DayPhotoEntity
 import ru.dw.astronomypictureoftheday.databinding.FragmentListPichureDayBinding
@@ -22,6 +23,7 @@ import ru.dw.astronomypictureoftheday.ui.list.recycler.AdapterPhotoItemNasa
 import ru.dw.astronomypictureoftheday.ui.list.recycler.OnItemListenerPhotoNasa
 import ru.dw.astronomypictureoftheday.ui.list.viewmodel.ListPhotosViewModel
 import ru.dw.astronomypictureoftheday.utils.getCurrentDays
+import ru.dw.astronomypictureoftheday.utils.isOnline
 
 
 class ListPhotosDayNasaFragment : Fragment(), OnItemListenerPhotoNasa {
@@ -31,7 +33,7 @@ class ListPhotosDayNasaFragment : Fragment(), OnItemListenerPhotoNasa {
         ViewModelProvider(this)[ListPhotosViewModel::class.java]
     }
     private val adapterPhoto = AdapterPhotoItemNasa(this)
-    private  var hashListPhoto: MutableList<DayPhotoEntity> = mutableListOf()
+    private var hashListPhoto: MutableList<DayPhotoEntity> = mutableListOf()
 
 
     override fun onCreateView(
@@ -44,6 +46,7 @@ class ListPhotosDayNasaFragment : Fragment(), OnItemListenerPhotoNasa {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        isOnline(requireContext())
         initRecycler()
         initViewModel()
         swipedItem()
@@ -51,7 +54,6 @@ class ListPhotosDayNasaFragment : Fragment(), OnItemListenerPhotoNasa {
         initFab()
 
     }
-
 
     private fun swipedItem() {
         val callback = object :
@@ -69,9 +71,9 @@ class ListPhotosDayNasaFragment : Fragment(), OnItemListenerPhotoNasa {
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                 val item = adapterPhoto.currentList[viewHolder.adapterPosition]
-                Thread {
+                lifecycleScope.launch(Dispatchers.IO) {
                     viewModel.helperRoom.deleteDayPhoto(item)
-                }.start()
+                }
 
             }
         }
@@ -79,7 +81,6 @@ class ListPhotosDayNasaFragment : Fragment(), OnItemListenerPhotoNasa {
         val itemTouchHelper = ItemTouchHelper(callback)
         itemTouchHelper.attachToRecyclerView(binding.recyclerListPhoto)
     }
-
 
     private fun initFab() {
         binding.floatingActionButton.setOnClickListener {
@@ -91,7 +92,6 @@ class ListPhotosDayNasaFragment : Fragment(), OnItemListenerPhotoNasa {
             })
         }
     }
-
 
     private fun initViewModel() {
         viewModel.getLiveData().observe(viewLifecycleOwner) { state ->
@@ -140,17 +140,17 @@ class ListPhotosDayNasaFragment : Fragment(), OnItemListenerPhotoNasa {
     }
 
     private fun checkDateToRequest(date: String, firstBoot: Boolean = false) {
-        Thread {
+        lifecycleScope.launch(Dispatchers.IO){
             if (viewModel.helperRoom.getIsDate(date)) {
-                Handler(Looper.getMainLooper()).post {
+                launch(Dispatchers.Main){
                     viewModel.sendRequest(date)
                 }
             } else {
-                Handler(Looper.getMainLooper()).post {
+                launch(Dispatchers.Main){
                     if (!firstBoot) showToast(date + getString(R.string.this_date_is))
                 }
             }
-        }.start()
+        }
     }
 
     private fun showToast(message: String) {
@@ -159,10 +159,12 @@ class ListPhotosDayNasaFragment : Fragment(), OnItemListenerPhotoNasa {
 
     override fun onClickListenerItem(dayPhotoEntity: DayPhotoEntity) {
         val bundle = Bundle()
-        bundle.putParcelable(KEY_BUNDLE_DETAILS,dayPhotoEntity)
+        bundle.putParcelable(KEY_BUNDLE_DETAILS, dayPhotoEntity)
         requireActivity().supportFragmentManager.beginTransaction()
-            .add(R.id.container,DetailsFragment.newInstance(bundle)
+            .add(
+                R.id.container, DetailsFragment.newInstance(bundle)
             ).addToBackStack("").commit()
     }
+
 
 }

@@ -3,6 +3,9 @@ package ru.dw.astronomypictureoftheday.ui.list.viewmodel
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import ru.dw.astronomypictureoftheday.MyApp
 import ru.dw.astronomypictureoftheday.model.DayPhotoResponse
 import ru.dw.astronomypictureoftheday.repository.RepositoryIpl
@@ -26,7 +29,7 @@ class ListPhotosViewModel(
         repository.getDataList().getListDayPicture(date, object : CallbackDetails {
             override fun onResponseSuccess(successes: List<DayPhotoResponse>) {
                 Log.d("@@@", "onResponseSuccess: ${successes[0]}")
-                Thread {
+                viewModelScope.launch(Dispatchers.IO) {
                     try {
                         val entity = convertSuccessesToEntity(successes[0])
                         helperRoom.setDayPhoto(entity)
@@ -35,7 +38,7 @@ class ListPhotosViewModel(
                             liveData.postValue(PictureAppState.Error(e.message!!))
                         }
                     }
-                }.start()
+                }
                 liveData.postValue(PictureAppState.Success)
             }
 
