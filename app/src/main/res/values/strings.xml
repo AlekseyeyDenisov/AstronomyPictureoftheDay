@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">Astronomy Picture of the Day</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="something_went_wrong">Что то пошло не так</string>
+    <string name="fab_content_desc">Добавить фотографию</string>
+    <string name="this_date_is">  дата есть</string>
 </resources>
