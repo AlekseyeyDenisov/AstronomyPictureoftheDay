@@ -7,11 +7,17 @@ import androidx.recyclerview.widget.ListAdapter
 import ru.dw.astronomypictureoftheday.data.room.DayPhotoEntity
 import ru.dw.astronomypictureoftheday.databinding.ItemPhotoDayBinding
 
-class AdapterPhotoItemNasa: ListAdapter<DayPhotoEntity, HolderAdapterPhotoItem>(PhotoItemDiffUtilCallBack()) {
+interface OnItemListenerPhotoNasa {
+    fun onClickListenerItem(dayPhotoEntity: DayPhotoEntity)
+}
+
+class AdapterPhotoItemNasa(private val onItemListener: OnItemListenerPhotoNasa):
+    ListAdapter<DayPhotoEntity, HolderAdapterPhotoItem>(PhotoItemDiffUtilCallBack()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): HolderAdapterPhotoItem {
-       val binding = ItemPhotoDayBinding.inflate(LayoutInflater.from(parent.context),parent,false)
-        return HolderAdapterPhotoItem(binding.root)
+        val binding =
+            ItemPhotoDayBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        return HolderAdapterPhotoItem(binding.root, onItemListener)
     }
 
     override fun onBindViewHolder(holder: HolderAdapterPhotoItem, position: Int) {

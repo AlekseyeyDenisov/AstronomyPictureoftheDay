@@ -4,4 +4,5 @@
     <string name="something_went_wrong">Что то пошло не так</string>
     <string name="fab_content_desc">Добавить фотографию</string>
     <string name="this_date_is">  дата есть</string>
+    <string name="photo_of_the_day_stub">Фото дня</string>
 </resources>

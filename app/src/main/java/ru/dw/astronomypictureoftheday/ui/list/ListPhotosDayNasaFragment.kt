@@ -3,7 +3,6 @@ package ru.dw.astronomypictureoftheday.ui.list
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,20 +14,23 @@ import androidx.recyclerview.widget.RecyclerView
 import ru.dw.astronomypictureoftheday.R
 import ru.dw.astronomypictureoftheday.data.room.DayPhotoEntity
 import ru.dw.astronomypictureoftheday.databinding.FragmentListPichureDayBinding
+import ru.dw.astronomypictureoftheday.ui.details.DetailsFragment
+import ru.dw.astronomypictureoftheday.ui.details.KEY_BUNDLE_DETAILS
 import ru.dw.astronomypictureoftheday.ui.list.components.DayPickersDate
 import ru.dw.astronomypictureoftheday.ui.list.components.OnDatePicker
 import ru.dw.astronomypictureoftheday.ui.list.recycler.AdapterPhotoItemNasa
+import ru.dw.astronomypictureoftheday.ui.list.recycler.OnItemListenerPhotoNasa
 import ru.dw.astronomypictureoftheday.ui.list.viewmodel.ListPhotosViewModel
 import ru.dw.astronomypictureoftheday.utils.getCurrentDays
 
 
-class ListPhotosDayNasaFragment : Fragment() {
+class ListPhotosDayNasaFragment : Fragment(), OnItemListenerPhotoNasa {
     private var _binding: FragmentListPichureDayBinding? = null
-    private val binding: FragmentListPichureDayBinding get() = _binding!!
+    private val binding get() = _binding!!
     private val viewModel: ListPhotosViewModel by lazy {
         ViewModelProvider(this)[ListPhotosViewModel::class.java]
     }
-    private val adapterPhoto = AdapterPhotoItemNasa()
+    private val adapterPhoto = AdapterPhotoItemNasa(this)
     private  var hashListPhoto: MutableList<DayPhotoEntity> = mutableListOf()
 
 
@@ -138,16 +140,6 @@ class ListPhotosDayNasaFragment : Fragment() {
     }
 
     private fun checkDateToRequest(date: String, firstBoot: Boolean = false) {
-        Log.d("@@@", "checkDateToRequest date: $date")
-//        hashListPhoto.forEach {
-//           // Log.d("@@@", "checkDateToRequest forEach: ${it.date}")
-//        }
-//        val filterData = hashListPhoto.filter {
-//            it.date.contains(date)
-//        }
-//
-//       // Log.d("@@@", "checkDateToRequest filterData: ${filterData.size}")
-//        //Log.d("@@@", "checkDateToRequest hashListPhoto: ${hashListPhoto.size}")
         Thread {
             if (viewModel.helperRoom.getIsDate(date)) {
                 Handler(Looper.getMainLooper()).post {
@@ -159,11 +151,18 @@ class ListPhotosDayNasaFragment : Fragment() {
                 }
             }
         }.start()
-
     }
 
     private fun showToast(message: String) {
         Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
+    }
+
+    override fun onClickListenerItem(dayPhotoEntity: DayPhotoEntity) {
+        val bundle = Bundle()
+        bundle.putParcelable(KEY_BUNDLE_DETAILS,dayPhotoEntity)
+        requireActivity().supportFragmentManager.beginTransaction()
+            .add(R.id.container,DetailsFragment.newInstance(bundle)
+            ).addToBackStack("").commit()
     }
 
 }
