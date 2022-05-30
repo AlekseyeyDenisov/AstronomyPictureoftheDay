@@ -3,6 +3,7 @@ package ru.dw.astronomypictureoftheday.ui.list
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,6 +13,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import ru.dw.astronomypictureoftheday.R
+import ru.dw.astronomypictureoftheday.data.room.DayPhotoEntity
 import ru.dw.astronomypictureoftheday.databinding.FragmentListPichureDayBinding
 import ru.dw.astronomypictureoftheday.ui.list.components.DayPickersDate
 import ru.dw.astronomypictureoftheday.ui.list.components.OnDatePicker
@@ -27,6 +29,7 @@ class ListPhotosDayNasaFragment : Fragment() {
         ViewModelProvider(this)[ListPhotosViewModel::class.java]
     }
     private val adapterPhoto = AdapterPhotoItemNasa()
+    private  var hashListPhoto: MutableList<DayPhotoEntity> = mutableListOf()
 
 
     override fun onCreateView(
@@ -41,9 +44,9 @@ class ListPhotosDayNasaFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         initRecycler()
         initViewModel()
-        initFab()
         swipedItem()
         checkDateToRequest(getCurrentDays(), true)
+        initFab()
 
     }
 
@@ -78,8 +81,8 @@ class ListPhotosDayNasaFragment : Fragment() {
 
     private fun initFab() {
         binding.floatingActionButton.setOnClickListener {
-            //DayPickersDate(requireActivity()).materialDatePicker(object : OnDatePicker {
-            DayPickersDate(requireActivity()).datePickerDialog(object : OnDatePicker {
+            DayPickersDate(requireActivity()).materialDatePicker(object : OnDatePicker {
+
                 override fun getResultDate(newDate: String) {
                     checkDateToRequest(newDate)
                 }
@@ -93,7 +96,8 @@ class ListPhotosDayNasaFragment : Fragment() {
             render(state)
         }
         viewModel.helperRoom.getAllListDay().observe(viewLifecycleOwner) { listPhoto ->
-            adapterPhoto.submitList(listPhoto)
+            hashListPhoto = listPhoto.toMutableList()
+            adapterPhoto.submitList(hashListPhoto)
         }
     }
 
@@ -134,6 +138,16 @@ class ListPhotosDayNasaFragment : Fragment() {
     }
 
     private fun checkDateToRequest(date: String, firstBoot: Boolean = false) {
+        Log.d("@@@", "checkDateToRequest date: $date")
+//        hashListPhoto.forEach {
+//           // Log.d("@@@", "checkDateToRequest forEach: ${it.date}")
+//        }
+//        val filterData = hashListPhoto.filter {
+//            it.date.contains(date)
+//        }
+//
+//       // Log.d("@@@", "checkDateToRequest filterData: ${filterData.size}")
+//        //Log.d("@@@", "checkDateToRequest hashListPhoto: ${hashListPhoto.size}")
         Thread {
             if (viewModel.helperRoom.getIsDate(date)) {
                 Handler(Looper.getMainLooper()).post {

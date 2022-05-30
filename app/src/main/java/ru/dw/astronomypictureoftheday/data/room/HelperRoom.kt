@@ -5,20 +5,13 @@ import androidx.lifecycle.LiveData
 
 class HelperRoom(private val db:DayPhotoDao) {
 
-     fun getAllListDay():LiveData<List<DayPhotoEntity>> {
-        return db.getAll()
-    }
+     fun getAllListDay():LiveData<List<DayPhotoEntity>> = db.getAll()
 
-    fun setDayPhoto(data:DayPhotoEntity){
-        db.insert(data)
-    }
-    fun deleteDayPhoto(data:DayPhotoEntity){
-        db.delete(data)
-    }
+    fun setDayPhoto(data:DayPhotoEntity) = db.insert(data)
 
-    fun getIsDate(date:String):Boolean{
-        return db.getIsDate(date) == null
+    fun deleteDayPhoto(data:DayPhotoEntity) = db.delete(data)
 
-    }
+    fun getIsDate(date:String):Boolean= db.getIsDate(date) == null
+
 
 }
