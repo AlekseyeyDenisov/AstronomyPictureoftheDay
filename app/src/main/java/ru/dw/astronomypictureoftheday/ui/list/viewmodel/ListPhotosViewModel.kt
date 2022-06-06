@@ -9,7 +9,6 @@ import kotlinx.coroutines.launch
 import ru.dw.astronomypictureoftheday.MyApp
 import ru.dw.astronomypictureoftheday.model.DayPhotoResponse
 import ru.dw.astronomypictureoftheday.repository.RepositoryIpl
-import ru.dw.astronomypictureoftheday.ui.list.PictureAppState
 import ru.dw.astronomypictureoftheday.utils.convertSuccessesToEntity
 
 

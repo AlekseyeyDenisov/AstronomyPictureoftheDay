@@ -1,4 +1,4 @@
-package ru.dw.astronomypictureoftheday.ui.list
+package ru.dw.astronomypictureoftheday.ui.list.viewmodel
 
 
 sealed class PictureAppState{

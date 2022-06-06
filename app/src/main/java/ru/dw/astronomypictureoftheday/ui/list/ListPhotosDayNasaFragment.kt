@@ -14,7 +14,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import ru.dw.astronomypictureoftheday.R
 import ru.dw.astronomypictureoftheday.data.room.DayPhotoEntity
-import ru.dw.astronomypictureoftheday.databinding.FragmentListPichureDayBinding
+import ru.dw.astronomypictureoftheday.databinding.FragmentListPictureDayBinding
 import ru.dw.astronomypictureoftheday.ui.details.DetailsFragment
 import ru.dw.astronomypictureoftheday.ui.details.KEY_BUNDLE_DETAILS
 import ru.dw.astronomypictureoftheday.ui.list.components.DayPickersDate
@@ -22,12 +22,13 @@ import ru.dw.astronomypictureoftheday.ui.list.components.OnDatePicker
 import ru.dw.astronomypictureoftheday.ui.list.recycler.AdapterPhotoItemNasa
 import ru.dw.astronomypictureoftheday.ui.list.recycler.OnItemListenerPhotoNasa
 import ru.dw.astronomypictureoftheday.ui.list.viewmodel.ListPhotosViewModel
+import ru.dw.astronomypictureoftheday.ui.list.viewmodel.PictureAppState
 import ru.dw.astronomypictureoftheday.utils.getCurrentDays
 import ru.dw.astronomypictureoftheday.utils.isOnline
 
 
 class ListPhotosDayNasaFragment : Fragment(), OnItemListenerPhotoNasa {
-    private var _binding: FragmentListPichureDayBinding? = null
+    private var _binding: FragmentListPictureDayBinding? = null
     private val binding get() = _binding!!
     private val viewModel: ListPhotosViewModel by lazy {
         ViewModelProvider(this)[ListPhotosViewModel::class.java]
@@ -40,7 +41,7 @@ class ListPhotosDayNasaFragment : Fragment(), OnItemListenerPhotoNasa {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentListPichureDayBinding.inflate(inflater, container, false)
+        _binding = FragmentListPictureDayBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -52,7 +53,18 @@ class ListPhotosDayNasaFragment : Fragment(), OnItemListenerPhotoNasa {
         swipedItem()
         checkDateToRequest(getCurrentDays(), true)
         initFab()
+        details()
 
+    }
+
+    private fun details() {
+        if (isOnePanelMode()) {
+            binding.detailsItemContainer
+        }
+    }
+
+    private fun isOnePanelMode(): Boolean {
+        return binding.detailsItemContainer == null
     }
 
     private fun swipedItem() {
@@ -140,13 +152,13 @@ class ListPhotosDayNasaFragment : Fragment(), OnItemListenerPhotoNasa {
     }
 
     private fun checkDateToRequest(date: String, firstBoot: Boolean = false) {
-        lifecycleScope.launch(Dispatchers.IO){
+        lifecycleScope.launch(Dispatchers.IO) {
             if (viewModel.helperRoom.getIsDate(date)) {
-                launch(Dispatchers.Main){
+                launch(Dispatchers.Main) {
                     viewModel.sendRequest(date)
                 }
             } else {
-                launch(Dispatchers.Main){
+                launch(Dispatchers.Main) {
                     if (!firstBoot) showToast(date + getString(R.string.this_date_is))
                 }
             }
@@ -160,10 +172,25 @@ class ListPhotosDayNasaFragment : Fragment(), OnItemListenerPhotoNasa {
     override fun onClickListenerItem(dayPhotoEntity: DayPhotoEntity) {
         val bundle = Bundle()
         bundle.putParcelable(KEY_BUNDLE_DETAILS, dayPhotoEntity)
+        DetailsFragment.newInstance(bundle)
+        if (isOnePanelMode()) {
+            launchFragment(
+                DetailsFragment.newInstance(bundle),
+                R.id.container
+            )
+        } else {
+            launchFragment(
+                DetailsFragment.newInstance(bundle),
+                R.id.details_item_container
+            )
+        }
+    }
+
+    private fun launchFragment(fragment: Fragment, containerId: Int) {
         requireActivity().supportFragmentManager.beginTransaction()
-            .add(
-                R.id.container, DetailsFragment.newInstance(bundle)
-            ).addToBackStack("").commit()
+            .add(containerId, fragment)
+            .addToBackStack("")
+            .commit()
     }
 
 

@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     android:background="#f6f6fa"
     app:behavior_hideable="true"
-    app:behavior_peekHeight="60dp"
+    app:behavior_peekHeight="80dp"
     app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
     <View
@@ -20,23 +20,35 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
-        style="@style/TitleStyle"
+    <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/title_bottom_sheet"
-        android:layout_width="wrap_content"
+        style="@style/TitleStyle"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_margin="16dp"
         android:fontFamily="@font/alata"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/bottom_sheet_line"
-        tools:text="Two Clusters and a Comet" />
+        tools:text="Two Clusters and a Comet Two Clusters and a Comet" />
 
-    <TextView
-        android:id="@+id/explanation_bottom_sheet"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/title_bottom_sheet"
-        tools:text="This lovely starfield spans some four full moons." />
+        app:layout_constraintTop_toBottomOf="@+id/title_bottom_sheet">
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/explanation_bottom_sheet"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            tools:text="This lovely starfield spans some four full moons." />
+
+    </ScrollView>
+
+
 </androidx.constraintlayout.widget.ConstraintLayout>
