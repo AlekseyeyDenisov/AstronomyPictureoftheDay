@@ -8,6 +8,9 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import coil.load
+import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
+import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.YouTubePlayerCallback
+import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView
 import ru.dw.astronomypictureoftheday.R
 import ru.dw.astronomypictureoftheday.data.room.DayPhotoEntity
 import ru.dw.astronomypictureoftheday.databinding.FragmentDetailsBinding
@@ -20,6 +23,7 @@ class DetailsFragment : Fragment() {
     private var _binding: FragmentDetailsBinding? = null
     private val binding get() = _binding!!
     private lateinit var dayPhotoEntity: DayPhotoEntity
+    lateinit var  youTubePlayerView: YouTubePlayerView
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -39,34 +43,61 @@ class DetailsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        initYouTube()
         initView()
+    }
+    private fun initYouTube() {
+        youTubePlayerView = binding.youtubePlayerView
+        lifecycle.addObserver(youTubePlayerView)
     }
 
     private fun initView() {
-       // Log.d("@@@", "onViewCreated: $dayPhotoEntity")
         binding.bottomSheetLayout.titleBottomSheet.text = dayPhotoEntity.title
         binding.bottomSheetLayout.explanationBottomSheet.text = dayPhotoEntity.explanation
 
         if (dayPhotoEntity.mediaType == CONSTANT_VIDEO){
-            binding.detailsImageLayout.apply {
-                load(R.drawable.you_tube)
-                setOnClickListener {
-                    startActivity(Intent(Intent.ACTION_VIEW).apply {
-                        data = Uri.parse(dayPhotoEntity.url)
-                    })                }
-            }
+            isVisibleVideo(true)
+            showNasaVideo(parseUrl(dayPhotoEntity.url),true)
+
         }else {
+            isVisibleVideo(false)
             binding.detailsImageLayout.load(dayPhotoEntity.hdUrl) {
                 placeholder(R.drawable.loadig)
             }
         }
 
     }
+    private fun showNasaVideo(videoId:String,isPlay:Boolean){
+        youTubePlayerView.getYouTubePlayerWhenReady(object : YouTubePlayerCallback {
+            override fun onYouTubePlayer(youTubePlayer: YouTubePlayer) {
+                if (isPlay)youTubePlayer.loadVideo(videoId,0F)
+                else youTubePlayer.pause()
+            }
+        })
+    }
+    private fun isVisibleVideo(visible:Boolean) {
+        if (visible){
+            binding.detailsImageLayout.visibility = View.GONE
+            binding.youtubePlayerView.visibility = View.VISIBLE
+        }else{
+            binding.detailsImageLayout.visibility = View.VISIBLE
+            binding.youtubePlayerView.visibility = View.GONE
+        }
+
+    }
+    private fun parseUrl(idVideo: String): String =  idVideo.removeSurrounding(
+        "https://www.youtube.com/embed/","?rel=0"
+    )
     companion object {
         @JvmStatic
         fun newInstance(bundle: Bundle) =
             DetailsFragment().apply {
                 arguments = bundle
             }
+    }
+    override fun onDestroy() {
+        super.onDestroy()
+        _binding = null
+        youTubePlayerView.release()
     }
 }
