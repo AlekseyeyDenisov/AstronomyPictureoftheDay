@@ -1,8 +1,10 @@
 package ru.dw.astronomypictureoftheday.ui.list.viewmodel
 
+import ru.dw.astronomypictureoftheday.data.room.DayPhotoEntity
+
 
 sealed class PictureAppState{
-    object Success: PictureAppState()
+    data class Success(val listPhoto: List<DayPhotoEntity>): PictureAppState()
     data class Error(val error: String) : PictureAppState()
     object Loading : PictureAppState()
 }

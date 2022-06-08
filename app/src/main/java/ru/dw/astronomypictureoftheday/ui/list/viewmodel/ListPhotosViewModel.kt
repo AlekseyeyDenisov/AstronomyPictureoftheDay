@@ -5,30 +5,49 @@ import android.content.Context
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import ru.dw.astronomypictureoftheday.MyApp
+import ru.dw.astronomypictureoftheday.data.FileHelper
 import ru.dw.astronomypictureoftheday.data.room.DayPhotoEntity
 import ru.dw.astronomypictureoftheday.model.DayPhotoResponse
 import ru.dw.astronomypictureoftheday.repository.RepositoryIpl
 import ru.dw.astronomypictureoftheday.utils.CONSTANT_IMAGES_DOWNLOAD_ERROR
-import ru.dw.astronomypictureoftheday.data.FileHelper
 import ru.dw.astronomypictureoftheday.utils.convertSuccessesToEntity
 
 
 class ListPhotosViewModel(
     application: Application
 ) : AndroidViewModel(application) {
-    private val context:Context by lazy { application.applicationContext }
+    private val context: Context by lazy { application.applicationContext }
 
     private val repository: Repository = RepositoryIpl
     private val liveData: MutableLiveData<PictureAppState> = MutableLiveData()
     private val fileHelper: FileHelper = FileHelper(context)
+    private val helperRoom = MyApp.getDBRoom()
 
-    val helperRoom = MyApp.getDBRoom()
+    private val observer = Observer<List<DayPhotoEntity>> { listPhoto ->
+        liveData.postValue(PictureAppState.Success(listPhoto))
+    }
 
-    fun deleteDayPhoto(data: DayPhotoEntity){
+    init {
+        getDataRoomListDay()
+    }
+
+    fun checkDateToRequest(date: String): Boolean {
+        return if (helperRoom.getIsDate(date)) {
+            viewModelScope.launch(Dispatchers.Main) {
+                sendRequest(date)
+            }
+            true
+        } else {
+            false
+        }
+    }
+
+    fun deleteDayPhoto(data: DayPhotoEntity) {
         helperRoom.deleteDayPhoto(data)
         fileHelper.deleteFiles(data.url)
     }
@@ -41,17 +60,17 @@ class ListPhotosViewModel(
         liveData.postValue(PictureAppState.Loading)
         repository.getDataList().getListDayPicture(date, object : CallbackDetails {
             override fun onResponseSuccess(successes: List<DayPhotoResponse>) {
-                //Log.d("@@@", "onResponseSuccess: ${successes[0]}")
+
                 viewModelScope.launch(Dispatchers.IO) {
                     try {
                         val entity = convertSuccessesToEntity(successes[0])
 
-                        fileHelper.downloadImages(entity.url,entity.date){ successImagesName->
+                        fileHelper.downloadImages(entity.url, entity.date) { successImagesName ->
 
-                            if (successImagesName != CONSTANT_IMAGES_DOWNLOAD_ERROR){
-                                entity.url =  successImagesName
+                            if (successImagesName != CONSTANT_IMAGES_DOWNLOAD_ERROR) {
+                                entity.url = successImagesName
                                 helperRoom.setDayPhoto(entity)
-                            }else{
+                            } else {
                                 helperRoom.setDayPhoto(entity)
                             }
 
@@ -63,7 +82,6 @@ class ListPhotosViewModel(
                         }
                     }
                 }
-                liveData.postValue(PictureAppState.Success)
             }
 
             override fun onFail(error: String) {
@@ -72,6 +90,15 @@ class ListPhotosViewModel(
             }
 
         })
+    }
+
+    override fun onCleared() {
+        helperRoom.getAllListDay().removeObserver(observer)
+        super.onCleared()
+    }
+
+    private fun getDataRoomListDay() {
+        helperRoom.getAllListDay().observeForever(observer)
     }
 
 }

@@ -48,23 +48,13 @@ class ListPhotosDayNasaFragment : Fragment(), OnItemListenerPhotoNasa {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         isOnline(requireContext())
-        initRecycler()
         initViewModel()
+        initRecycler()
         swipedItem()
         checkDateToRequest(getCurrentDays(), true)
         initFab()
-        details()
 
-    }
 
-    private fun details() {
-        if (isOnePanelMode()) {
-            binding.detailsItemContainer
-        }
-    }
-
-    private fun isOnePanelMode(): Boolean {
-        return binding.detailsItemContainer == null
     }
 
     private fun swipedItem() {
@@ -94,81 +84,6 @@ class ListPhotosDayNasaFragment : Fragment(), OnItemListenerPhotoNasa {
         itemTouchHelper.attachToRecyclerView(binding.recyclerListPhoto)
     }
 
-    private fun initFab() {
-        binding.floatingActionButton.setOnClickListener {
-            DayPickersDate(requireActivity()).materialDatePicker(object : OnDatePicker {
-
-                override fun getResultDate(newDate: String) {
-                    checkDateToRequest(newDate)
-                }
-            })
-        }
-    }
-
-    private fun initViewModel() {
-        viewModel.getLiveData().observe(viewLifecycleOwner) { state ->
-            render(state)
-        }
-        viewModel.helperRoom.getAllListDay().observe(viewLifecycleOwner) { listPhoto ->
-            hashListPhoto = listPhoto.toMutableList()
-            adapterPhoto.submitList(hashListPhoto)
-        }
-    }
-
-    private fun initRecycler() {
-        binding.recyclerListPhoto.adapter = adapterPhoto
-    }
-
-    companion object {
-        @JvmStatic
-        fun newInstance() = ListPhotosDayNasaFragment()
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        _binding = null
-    }
-
-    private fun render(data: PictureAppState) {
-        when (data) {
-            is PictureAppState.Error -> {
-                visibilityLoading(false)
-                showToast(getString(R.string.something_went_wrong))
-            }
-            is PictureAppState.Success -> {
-                visibilityLoading(false)
-            }
-            PictureAppState.Loading -> {
-                visibilityLoading(true)
-
-            }
-        }
-    }
-
-
-    private fun visibilityLoading(visibility: Boolean) {
-        if (visibility) binding.loadingItem.visibility = View.VISIBLE
-        else binding.loadingItem.visibility = View.GONE
-    }
-
-    private fun checkDateToRequest(date: String, firstBoot: Boolean = false) {
-        lifecycleScope.launch(Dispatchers.IO) {
-            if (viewModel.helperRoom.getIsDate(date)) {
-                launch(Dispatchers.Main) {
-                    viewModel.sendRequest(date)
-                }
-            } else {
-                launch(Dispatchers.Main) {
-                    if (!firstBoot) showToast(date + getString(R.string.this_date_is))
-                }
-            }
-        }
-    }
-
-    private fun showToast(message: String) {
-        Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
-    }
-
     override fun onClickListenerItem(dayPhotoEntity: DayPhotoEntity) {
         val bundle = Bundle()
         bundle.putParcelable(KEY_BUNDLE_DETAILS, dayPhotoEntity)
@@ -186,11 +101,85 @@ class ListPhotosDayNasaFragment : Fragment(), OnItemListenerPhotoNasa {
         }
     }
 
+    private fun render(data: PictureAppState) {
+        when (data) {
+            is PictureAppState.Error -> {
+                visibilityLoading(false)
+                showToast(getString(R.string.something_went_wrong))
+            }
+            is PictureAppState.Success -> {
+                visibilityLoading(false)
+                hashListPhoto = data.listPhoto.toMutableList()
+                adapterPhoto.submitList(hashListPhoto)
+
+            }
+            PictureAppState.Loading -> {
+                visibilityLoading(true)
+
+            }
+        }
+    }
+
+    private fun initFab() {
+        binding.floatingActionButton.setOnClickListener {
+            DayPickersDate(requireActivity()).materialDatePicker(object : OnDatePicker {
+
+                override fun getResultDate(newDate: String) {
+                    checkDateToRequest(newDate)
+                }
+            })
+        }
+    }
+
+    private fun initViewModel() {
+        viewModel.getLiveData().observe(viewLifecycleOwner) { state ->
+            render(state)
+        }
+
+    }
+
+    private fun initRecycler() {
+        binding.recyclerListPhoto.adapter = adapterPhoto
+    }
+
+    private fun showToast(message: String) {
+        Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
+    }
+
     private fun launchFragment(fragment: Fragment, containerId: Int) {
         requireActivity().supportFragmentManager.beginTransaction()
             .add(containerId, fragment)
             .addToBackStack("")
             .commit()
+    }
+
+    private fun checkDateToRequest(date: String, firstBoot: Boolean = false) {
+        lifecycleScope.launch(Dispatchers.IO) {
+            if (!viewModel.checkDateToRequest(date)) {
+                launch(Dispatchers.Main) {
+                    if (!firstBoot) showToast(date + " "+ getString(R.string.this_date_is))
+                }
+            }
+        }
+    }
+
+    private fun visibilityLoading(visibility: Boolean) {
+        if (visibility) binding.loadingItem.visibility = View.VISIBLE
+        else binding.loadingItem.visibility = View.GONE
+    }
+
+    private fun isOnePanelMode(): Boolean {
+        return binding.detailsItemContainer == null
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        _binding = null
+    }
+
+    companion object {
+        @JvmStatic
+        fun newInstance() = ListPhotosDayNasaFragment()
     }
 
 
