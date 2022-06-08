@@ -1,7 +1,5 @@
 package ru.dw.astronomypictureoftheday.ui.details
 
-import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -16,6 +14,7 @@ import ru.dw.astronomypictureoftheday.data.room.DayPhotoEntity
 import ru.dw.astronomypictureoftheday.databinding.FragmentDetailsBinding
 import ru.dw.astronomypictureoftheday.utils.CONSTANT_VIDEO
 import ru.dw.astronomypictureoftheday.utils.getUriImages
+import ru.dw.astronomypictureoftheday.utils.isOnline
 
 const val KEY_BUNDLE_DETAILS = "KEY_BUNDLE_DETAILS"
 
@@ -24,7 +23,7 @@ class DetailsFragment : Fragment() {
     private var _binding: FragmentDetailsBinding? = null
     private val binding get() = _binding!!
     private lateinit var dayPhotoEntity: DayPhotoEntity
-    lateinit var  youTubePlayerView: YouTubePlayerView
+    lateinit var youTubePlayerView: YouTubePlayerView
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -47,6 +46,7 @@ class DetailsFragment : Fragment() {
         initYouTube()
         initView()
     }
+
     private fun initYouTube() {
         youTubePlayerView = binding.youtubePlayerView
         lifecycle.addObserver(youTubePlayerView)
@@ -56,38 +56,64 @@ class DetailsFragment : Fragment() {
         binding.bottomSheetLayout.titleBottomSheet.text = dayPhotoEntity.title
         binding.bottomSheetLayout.explanationBottomSheet.text = dayPhotoEntity.explanation
 
-        if (dayPhotoEntity.mediaType == CONSTANT_VIDEO){
-            isVisibleVideo(true)
-            showNasaVideo(parseUrl(dayPhotoEntity.url),true)
+        if (dayPhotoEntity.mediaType == CONSTANT_VIDEO) {
+            if (isOnline(requireContext())) {
+                isVisibilityErrorConnection(false)
+                showPlay()
+            } else {
+                isVisibilityErrorConnection(true)
+                binding.detailsImageLayout.load(R.drawable.you_tube)
+                binding.detailsImageLayout.setOnClickListener {
+                    if (isOnline(requireContext())) {
+                        isVisibilityErrorConnection(false)
+                        showPlay()
+                    }
+                }
+            }
 
-        }else {
-            isVisibleVideo(false)
-            binding.detailsImageLayout.setImageURI(getUriImages(requireContext(),dayPhotoEntity))
+        } else {
+            binding.detailsImageLayout.setImageURI(getUriImages(requireContext(), dayPhotoEntity))
 
         }
 
     }
-    private fun showNasaVideo(videoId:String,isPlay:Boolean){
+
+    private fun isVisibilityErrorConnection(visibility: Boolean) {
+        if (visibility)
+            binding.infoError.infoErrorOnline.visibility = View.VISIBLE
+        else binding.infoError.infoErrorOnline.visibility = View.GONE
+    }
+
+    private fun showPlay() {
+        binding.infoError.infoErrorOnline.visibility = View.GONE
+        isVisibleVideo(true)
+        showNasaVideo(parseUrl(dayPhotoEntity.url), true)
+    }
+
+    private fun showNasaVideo(videoId: String, isPlay: Boolean) {
         youTubePlayerView.getYouTubePlayerWhenReady(object : YouTubePlayerCallback {
             override fun onYouTubePlayer(youTubePlayer: YouTubePlayer) {
-                if (isPlay)youTubePlayer.loadVideo(videoId,0F)
+                if (isPlay) youTubePlayer.loadVideo(videoId, 0F)
                 else youTubePlayer.pause()
             }
         })
     }
-    private fun isVisibleVideo(visible:Boolean) {
-        if (visible){
+
+    private fun isVisibleVideo(visible: Boolean) {
+        if (visible) {
             binding.detailsImageLayout.visibility = View.GONE
             binding.youtubePlayerView.visibility = View.VISIBLE
-        }else{
+        } else {
             binding.detailsImageLayout.visibility = View.VISIBLE
             binding.youtubePlayerView.visibility = View.GONE
         }
 
     }
-    private fun parseUrl(idVideo: String): String =  idVideo.removeSurrounding(
-        "https://www.youtube.com/embed/","?rel=0"
+
+    private fun parseUrl(idVideo: String): String = idVideo.removeSurrounding(
+        "https://www.youtube.com/embed/", "?rel=0"
     )
+
     companion object {
         @JvmStatic
         fun newInstance(bundle: Bundle) =
@@ -95,6 +121,7 @@ class DetailsFragment : Fragment() {
                 arguments = bundle
             }
     }
+
     override fun onDestroy() {
         super.onDestroy()
         _binding = null

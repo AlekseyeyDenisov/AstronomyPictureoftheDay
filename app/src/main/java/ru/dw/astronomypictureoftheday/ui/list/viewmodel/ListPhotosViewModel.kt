@@ -11,9 +11,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import ru.dw.astronomypictureoftheday.MyApp
 import ru.dw.astronomypictureoftheday.data.FileHelper
+import ru.dw.astronomypictureoftheday.data.retrofit.RetrofitHelper
 import ru.dw.astronomypictureoftheday.data.room.DayPhotoEntity
 import ru.dw.astronomypictureoftheday.model.DayPhotoResponse
-import ru.dw.astronomypictureoftheday.repository.RepositoryIpl
 import ru.dw.astronomypictureoftheday.utils.CONSTANT_IMAGES_DOWNLOAD_ERROR
 import ru.dw.astronomypictureoftheday.utils.convertSuccessesToEntity
 
@@ -22,8 +22,7 @@ class ListPhotosViewModel(
     application: Application
 ) : AndroidViewModel(application) {
     private val context: Context by lazy { application.applicationContext }
-
-    private val repository: Repository = RepositoryIpl
+    private val dataApiNasa: ListPicture = RetrofitHelper    
     private val liveData: MutableLiveData<PictureAppState> = MutableLiveData()
     private val fileHelper: FileHelper = FileHelper(context)
     private val helperRoom = MyApp.getDBRoom()
@@ -58,7 +57,7 @@ class ListPhotosViewModel(
 
     fun sendRequest(date: String) {
         liveData.postValue(PictureAppState.Loading)
-        repository.getDataList().getListDayPicture(date, object : CallbackDetails {
+        dataApiNasa.getListDayPicture(date, object : CallbackDetails {
             override fun onResponseSuccess(successes: List<DayPhotoResponse>) {
 
                 viewModelScope.launch(Dispatchers.IO) {

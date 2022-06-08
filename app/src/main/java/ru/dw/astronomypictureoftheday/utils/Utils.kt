@@ -48,7 +48,7 @@ fun convertSuccessesToEntity(dayPhotoResponse: DayPhotoResponse): DayPhotoEntity
 fun isOnline(context: Context): Boolean {
     val connectivityManager =
         context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-    if (connectivityManager != null) {
+    if (connectivityManager.isDefaultNetworkActive) {
         val capabilities =
             connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
         if (capabilities != null) {
@@ -63,6 +63,9 @@ fun isOnline(context: Context): Boolean {
                 return true
             }
         }
+    }else {
+        Log.d("@@@", "NetworkCapabilities NO")
+        return false
     }
     return false
 }

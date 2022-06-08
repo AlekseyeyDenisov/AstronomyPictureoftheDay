@@ -1,4 +1,4 @@
-package ru.dw.astronomypictureoftheday.repository
+package ru.dw.astronomypictureoftheday.ui.list.viewmodel
 
 import ru.dw.astronomypictureoftheday.ui.list.viewmodel.CallbackDetails
 

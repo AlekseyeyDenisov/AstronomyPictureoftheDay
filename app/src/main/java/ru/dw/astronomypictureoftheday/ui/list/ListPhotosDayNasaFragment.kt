@@ -1,6 +1,7 @@
 package ru.dw.astronomypictureoftheday.ui.list
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -47,7 +48,6 @@ class ListPhotosDayNasaFragment : Fragment(), OnItemListenerPhotoNasa {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        isOnline(requireContext())
         initViewModel()
         initRecycler()
         swipedItem()
@@ -122,13 +122,21 @@ class ListPhotosDayNasaFragment : Fragment(), OnItemListenerPhotoNasa {
 
     private fun initFab() {
         binding.floatingActionButton.setOnClickListener {
-            DayPickersDate(requireActivity()).materialDatePicker(object : OnDatePicker {
+            Log.d("@@@", "initFab: ")
+            if (isOnline(requireContext())) {
+                binding.infoError?.infoErrorOnline?.visibility =View.GONE
+                DayPickersDate(requireActivity()).materialDatePicker(object : OnDatePicker {
 
-                override fun getResultDate(newDate: String) {
-                    checkDateToRequest(newDate)
-                }
-            })
+                    override fun getResultDate(newDate: String) {
+                        checkDateToRequest(newDate)
+                    }
+                })
+            } else {
+                binding.infoError?.infoErrorOnline?.visibility =View.VISIBLE
+
+            }
         }
+
     }
 
     private fun initViewModel() {
@@ -154,13 +162,19 @@ class ListPhotosDayNasaFragment : Fragment(), OnItemListenerPhotoNasa {
     }
 
     private fun checkDateToRequest(date: String, firstBoot: Boolean = false) {
-        lifecycleScope.launch(Dispatchers.IO) {
-            if (!viewModel.checkDateToRequest(date)) {
-                launch(Dispatchers.Main) {
-                    if (!firstBoot) showToast(date + " "+ getString(R.string.this_date_is))
+        if (isOnline(requireContext())) {
+            binding.infoError?.infoErrorOnline?.visibility =View.GONE
+            lifecycleScope.launch(Dispatchers.IO) {
+                if (!viewModel.checkDateToRequest(date)) {
+                    launch(Dispatchers.Main) {
+                        if (!firstBoot) showToast(date + " " + getString(R.string.this_date_is))
+                    }
                 }
             }
+        } else {
+            binding.infoError?.infoErrorOnline?.visibility =View.VISIBLE
         }
+
     }
 
     private fun visibilityLoading(visibility: Boolean) {
