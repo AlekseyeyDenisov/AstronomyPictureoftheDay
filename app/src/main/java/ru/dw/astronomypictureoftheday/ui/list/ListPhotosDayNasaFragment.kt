@@ -1,5 +1,6 @@
 package ru.dw.astronomypictureoftheday.ui.list
 
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -53,19 +54,20 @@ class ListPhotosDayNasaFragment : Fragment(), OnItemListenerPhotoNasa {
         swipedItem()
         checkDateToRequest(getCurrentDays(), true)
         initFab()
-        isInternetConnect()
-
 
     }
 
-    private fun isInternetConnect():Boolean {
-        return if (MyApp.pref.getIsInternet()){
-            binding.infoError.infoErrorOnline.visibility = View.GONE
-            true
-        } else{
-            binding.infoError.infoErrorOnline.visibility = View.VISIBLE
-            false
+    private fun isInternetConnect(isConnect: (Boolean) ->Unit) {
+        MyApp.isConnectivity.observe(viewLifecycleOwner){
+            if (it){
+                binding.infoError.infoErrorOnline.visibility = View.GONE
+                isConnect(true)
+            } else{
+                binding.infoError.infoErrorOnline.visibility = View.VISIBLE
+                isConnect(false)
+            }
         }
+
     }
 
     private fun swipedItem() {
@@ -134,7 +136,8 @@ class ListPhotosDayNasaFragment : Fragment(), OnItemListenerPhotoNasa {
     private fun initFab() {
         binding.floatingActionButton.setOnClickListener {
             Log.d("@@@", "initFab: ")
-            if (isInternetConnect()) {
+           isInternetConnect() {
+               if (it)
                 DayPickersDate(requireActivity()).materialDatePicker(object : OnDatePicker {
 
                     override fun getResultDate(newDate: String) {
@@ -169,14 +172,16 @@ class ListPhotosDayNasaFragment : Fragment(), OnItemListenerPhotoNasa {
     }
 
     private fun checkDateToRequest(date: String, firstBoot: Boolean = false) {
-        if (isInternetConnect()) {
-            lifecycleScope.launch(Dispatchers.IO) {
-                if (!viewModel.checkDateToRequest(date)) {
-                    launch(Dispatchers.Main) {
-                        if (!firstBoot) showToast(date + " " + getString(R.string.this_date_is))
-                    }
-                }
-            }
+       isInternetConnect() {
+           if (it){
+               lifecycleScope.launch(Dispatchers.IO) {
+                   if (!viewModel.checkDateToRequest(date)) {
+                       launch(Dispatchers.Main) {
+                           if (!firstBoot) showToast(date + " " + getString(R.string.this_date_is))
+                       }
+                   }
+               }
+           }
         }
     }
 
@@ -188,6 +193,8 @@ class ListPhotosDayNasaFragment : Fragment(), OnItemListenerPhotoNasa {
     private fun isOnePanelMode(): Boolean {
         return binding.detailsItemContainer == null
     }
+
+
 
     override fun onDestroy() {
         super.onDestroy()
