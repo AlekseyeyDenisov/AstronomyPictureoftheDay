@@ -4,12 +4,14 @@ import android.app.Application
 import androidx.room.Room
 import ru.dw.astronomypictureoftheday.data.room.DBRoom
 import ru.dw.astronomypictureoftheday.data.room.HelperRoom
+import ru.dw.astronomypictureoftheday.utils.SharedPreferencesManager
 
 
 class MyApp : Application() {
 
     companion object {
         private var appContext: MyApp? = null
+        lateinit var pref: SharedPreferencesManager
 
 
         private var dbRoom: DBRoom? = null
@@ -29,6 +31,7 @@ class MyApp : Application() {
     override fun onCreate() {
         super.onCreate()
         appContext = this
+        pref = SharedPreferencesManager(this)
 
 
     }

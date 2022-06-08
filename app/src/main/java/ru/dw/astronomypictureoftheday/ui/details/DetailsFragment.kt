@@ -7,14 +7,19 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import coil.load
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
+import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.AbstractYouTubePlayerListener
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.YouTubePlayerCallback
+import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.YouTubePlayerListener
+import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.options.IFramePlayerOptions
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView
+import com.pierfrancescosoffritti.androidyoutubeplayer.core.ui.DefaultPlayerUiController
+import ru.dw.astronomypictureoftheday.MyApp
 import ru.dw.astronomypictureoftheday.R
 import ru.dw.astronomypictureoftheday.data.room.DayPhotoEntity
 import ru.dw.astronomypictureoftheday.databinding.FragmentDetailsBinding
 import ru.dw.astronomypictureoftheday.utils.CONSTANT_VIDEO
 import ru.dw.astronomypictureoftheday.utils.getUriImages
-import ru.dw.astronomypictureoftheday.utils.isOnline
+
 
 const val KEY_BUNDLE_DETAILS = "KEY_BUNDLE_DETAILS"
 
@@ -24,6 +29,7 @@ class DetailsFragment : Fragment() {
     private val binding get() = _binding!!
     private lateinit var dayPhotoEntity: DayPhotoEntity
     lateinit var youTubePlayerView: YouTubePlayerView
+    private  val pref =  MyApp.pref
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -43,6 +49,7 @@ class DetailsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        isInternetConnect()
         initYouTube()
         initView()
     }
@@ -50,6 +57,7 @@ class DetailsFragment : Fragment() {
     private fun initYouTube() {
         youTubePlayerView = binding.youtubePlayerView
         lifecycle.addObserver(youTubePlayerView)
+
     }
 
     private fun initView() {
@@ -57,57 +65,52 @@ class DetailsFragment : Fragment() {
         binding.bottomSheetLayout.explanationBottomSheet.text = dayPhotoEntity.explanation
 
         if (dayPhotoEntity.mediaType == CONSTANT_VIDEO) {
-            if (isOnline(requireContext())) {
-                isVisibilityErrorConnection(false)
-                showPlay()
+            if (isInternetConnect()) {
+                isVisibleVideo(true)
+                showNasaVideo(parseUrl(dayPhotoEntity.url))
             } else {
-                isVisibilityErrorConnection(true)
                 binding.detailsImageLayout.load(R.drawable.you_tube)
                 binding.detailsImageLayout.setOnClickListener {
-                    if (isOnline(requireContext())) {
-                        isVisibilityErrorConnection(false)
-                        showPlay()
+                    if (pref.getIsInternet()) {
+                        isVisibleVideo(true)
+                        showNasaVideo(parseUrl(dayPhotoEntity.url))
                     }
                 }
             }
 
         } else {
+            isVisibleVideo(false)
             binding.detailsImageLayout.setImageURI(getUriImages(requireContext(), dayPhotoEntity))
 
         }
 
     }
 
-    private fun isVisibilityErrorConnection(visibility: Boolean) {
-        if (visibility)
+    private fun isInternetConnect():Boolean {
+        return if (MyApp.pref.getIsInternet()){
+            binding.infoError.infoErrorOnline.visibility = View.GONE
+            true
+        } else{
             binding.infoError.infoErrorOnline.visibility = View.VISIBLE
-        else binding.infoError.infoErrorOnline.visibility = View.GONE
+            false
+        }
     }
 
-    private fun showPlay() {
-        binding.infoError.infoErrorOnline.visibility = View.GONE
-        isVisibleVideo(true)
-        showNasaVideo(parseUrl(dayPhotoEntity.url), true)
-    }
-
-    private fun showNasaVideo(videoId: String, isPlay: Boolean) {
+    private fun showNasaVideo(videoId: String) {
         youTubePlayerView.getYouTubePlayerWhenReady(object : YouTubePlayerCallback {
             override fun onYouTubePlayer(youTubePlayer: YouTubePlayer) {
-                if (isPlay) youTubePlayer.loadVideo(videoId, 0F)
-                else youTubePlayer.pause()
+                youTubePlayer.loadVideo(videoId, 0F)
             }
         })
+
     }
 
-    private fun isVisibleVideo(visible: Boolean) {
-        if (visible) {
-            binding.detailsImageLayout.visibility = View.GONE
-            binding.youtubePlayerView.visibility = View.VISIBLE
-        } else {
-            binding.detailsImageLayout.visibility = View.VISIBLE
-            binding.youtubePlayerView.visibility = View.GONE
-        }
-
+    private fun isVisibleVideo(visibleVideo: Boolean) = if (visibleVideo) {
+        binding.detailsImageLayout.visibility = View.GONE
+        binding.youtubePlayerView.visibility = View.VISIBLE
+    } else {
+        binding.detailsImageLayout.visibility = View.VISIBLE
+        binding.youtubePlayerView.visibility = View.GONE
     }
 
     private fun parseUrl(idVideo: String): String = idVideo.removeSurrounding(

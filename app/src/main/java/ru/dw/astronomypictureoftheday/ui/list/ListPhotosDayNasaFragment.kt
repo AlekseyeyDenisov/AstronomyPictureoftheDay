@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import ru.dw.astronomypictureoftheday.MyApp
 import ru.dw.astronomypictureoftheday.R
 import ru.dw.astronomypictureoftheday.data.room.DayPhotoEntity
 import ru.dw.astronomypictureoftheday.databinding.FragmentListPictureDayBinding
@@ -25,7 +26,6 @@ import ru.dw.astronomypictureoftheday.ui.list.recycler.OnItemListenerPhotoNasa
 import ru.dw.astronomypictureoftheday.ui.list.viewmodel.ListPhotosViewModel
 import ru.dw.astronomypictureoftheday.ui.list.viewmodel.PictureAppState
 import ru.dw.astronomypictureoftheday.utils.getCurrentDays
-import ru.dw.astronomypictureoftheday.utils.isOnline
 
 
 class ListPhotosDayNasaFragment : Fragment(), OnItemListenerPhotoNasa {
@@ -53,8 +53,19 @@ class ListPhotosDayNasaFragment : Fragment(), OnItemListenerPhotoNasa {
         swipedItem()
         checkDateToRequest(getCurrentDays(), true)
         initFab()
+        isInternetConnect()
 
 
+    }
+
+    private fun isInternetConnect():Boolean {
+        return if (MyApp.pref.getIsInternet()){
+            binding.infoError.infoErrorOnline.visibility = View.GONE
+            true
+        } else{
+            binding.infoError.infoErrorOnline.visibility = View.VISIBLE
+            false
+        }
     }
 
     private fun swipedItem() {
@@ -94,10 +105,10 @@ class ListPhotosDayNasaFragment : Fragment(), OnItemListenerPhotoNasa {
                 R.id.container
             )
         } else {
-            launchFragment(
-                DetailsFragment.newInstance(bundle),
-                R.id.details_item_container
-            )
+            requireActivity().supportFragmentManager.beginTransaction()
+                .replace(R.id.details_item_container, DetailsFragment.newInstance(bundle))
+                .commit()
+
         }
     }
 
@@ -123,17 +134,13 @@ class ListPhotosDayNasaFragment : Fragment(), OnItemListenerPhotoNasa {
     private fun initFab() {
         binding.floatingActionButton.setOnClickListener {
             Log.d("@@@", "initFab: ")
-            if (isOnline(requireContext())) {
-                binding.infoError?.infoErrorOnline?.visibility =View.GONE
+            if (isInternetConnect()) {
                 DayPickersDate(requireActivity()).materialDatePicker(object : OnDatePicker {
 
                     override fun getResultDate(newDate: String) {
                         checkDateToRequest(newDate)
                     }
                 })
-            } else {
-                binding.infoError?.infoErrorOnline?.visibility =View.VISIBLE
-
             }
         }
 
@@ -162,8 +169,7 @@ class ListPhotosDayNasaFragment : Fragment(), OnItemListenerPhotoNasa {
     }
 
     private fun checkDateToRequest(date: String, firstBoot: Boolean = false) {
-        if (isOnline(requireContext())) {
-            binding.infoError?.infoErrorOnline?.visibility =View.GONE
+        if (isInternetConnect()) {
             lifecycleScope.launch(Dispatchers.IO) {
                 if (!viewModel.checkDateToRequest(date)) {
                     launch(Dispatchers.Main) {
@@ -171,10 +177,7 @@ class ListPhotosDayNasaFragment : Fragment(), OnItemListenerPhotoNasa {
                     }
                 }
             }
-        } else {
-            binding.infoError?.infoErrorOnline?.visibility =View.VISIBLE
         }
-
     }
 
     private fun visibilityLoading(visibility: Boolean) {

@@ -24,6 +24,16 @@
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />
+        <receiver
+            android:name=".BroadcastReceiverNasa"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.AIRPLANE_MODE" />
+                <action android:name="myaction" />
+            </intent-filter>
+        </receiver>
+
     </application>
 
 </manifest>
