@@ -9,7 +9,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 import ru.dw.astronomypictureoftheday.BuildConfig
 import ru.dw.astronomypictureoftheday.model.DayPhotoResponse
 import ru.dw.astronomypictureoftheday.ui.list.viewmodel.CallbackDetails
-import ru.dw.astronomypictureoftheday.repository.ListPicture
+import ru.dw.astronomypictureoftheday.ui.list.viewmodel.ListPicture
 
 object RetrofitHelper: ListPicture {
     private val retrofit: Retrofit = initRetrofit()

@@ -1,15 +1,18 @@
 package ru.dw.astronomypictureoftheday
 
 import android.app.Application
+import androidx.lifecycle.MutableLiveData
 import androidx.room.Room
 import ru.dw.astronomypictureoftheday.data.room.DBRoom
 import ru.dw.astronomypictureoftheday.data.room.HelperRoom
+
 
 
 class MyApp : Application() {
 
     companion object {
         private var appContext: MyApp? = null
+        val isConnectivity: MutableLiveData<Boolean> = MutableLiveData()
 
 
         private var dbRoom: DBRoom? = null
@@ -29,7 +32,6 @@ class MyApp : Application() {
     override fun onCreate() {
         super.onCreate()
         appContext = this
-
 
     }
 

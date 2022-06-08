@@ -14,5 +14,6 @@
         <!-- Customize your theme here. -->
 
         <item name="floatingActionButtonStyle">@style/MyStyleFloatingActionButton</item>
+        <item name="android:textViewStyle">@style/TextViewDefault</item>
     </style>
 </resources>
