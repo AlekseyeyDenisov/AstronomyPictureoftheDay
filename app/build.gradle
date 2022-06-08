@@ -45,8 +45,8 @@ android {
 
 dependencies {
 
-    implementation 'androidx.core:core-ktx:1.7.0'
-    implementation 'androidx.appcompat:appcompat:1.4.1'
+    implementation 'androidx.core:core-ktx:1.8.0'
+    implementation 'androidx.appcompat:appcompat:1.4.2'
     implementation 'com.google.android.material:material:1.6.1'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
@@ -59,12 +59,14 @@ dependencies {
     implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
 
     //AppCompat
-    implementation 'androidx.appcompat:appcompat:1.4.1'
+    implementation 'androidx.appcompat:appcompat:1.4.2'
     //Lifecycle and ViewModel (архитектурные компоненты)
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.4.1'
-    //Coil image download (аналог Picasso и Glide, написанный на Kotlin)
+    //Coil image download
     implementation("io.coil-kt:coil:2.1.0")
+    //Glide
+    implementation 'com.github.bumptech.glide:glide:4.13.0'
     //room
     apply plugin: 'kotlin-kapt'
     implementation 'androidx.room:room-runtime:2.4.2'
@@ -75,6 +77,7 @@ dependencies {
 
     //android-youtube-player
     implementation 'com.pierfrancescosoffritti.androidyoutubeplayer:core:11.0.1'
+
 
 
 }

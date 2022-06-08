@@ -16,6 +16,6 @@ data class DayPhotoEntity(
     val hdUrl: String,
     val explanation: String,
     val title: String,
-    val url: String,
+    var url: String,
     val mediaType:String
 ): Parcelable

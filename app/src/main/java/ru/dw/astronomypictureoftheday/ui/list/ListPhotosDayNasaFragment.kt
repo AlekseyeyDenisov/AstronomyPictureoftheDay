@@ -82,9 +82,9 @@ class ListPhotosDayNasaFragment : Fragment(), OnItemListenerPhotoNasa {
             }
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                val item = adapterPhoto.currentList[viewHolder.adapterPosition]
+                val item = adapterPhoto.currentList[viewHolder.bindingAdapterPosition]
                 lifecycleScope.launch(Dispatchers.IO) {
-                    viewModel.helperRoom.deleteDayPhoto(item)
+                    viewModel.deleteDayPhoto(item)
                 }
 
             }

@@ -15,6 +15,7 @@ import ru.dw.astronomypictureoftheday.R
 import ru.dw.astronomypictureoftheday.data.room.DayPhotoEntity
 import ru.dw.astronomypictureoftheday.databinding.FragmentDetailsBinding
 import ru.dw.astronomypictureoftheday.utils.CONSTANT_VIDEO
+import ru.dw.astronomypictureoftheday.utils.getUriImages
 
 const val KEY_BUNDLE_DETAILS = "KEY_BUNDLE_DETAILS"
 
@@ -61,9 +62,8 @@ class DetailsFragment : Fragment() {
 
         }else {
             isVisibleVideo(false)
-            binding.detailsImageLayout.load(dayPhotoEntity.hdUrl) {
-                placeholder(R.drawable.loadig)
-            }
+            binding.detailsImageLayout.setImageURI(getUriImages(requireContext(),dayPhotoEntity))
+
         }
 
     }
