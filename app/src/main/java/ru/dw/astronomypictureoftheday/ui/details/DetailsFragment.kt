@@ -1,9 +1,11 @@
 package ru.dw.astronomypictureoftheday.ui.details
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import coil.load
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
@@ -25,7 +27,7 @@ class DetailsFragment : Fragment() {
     private val binding get() = _binding!!
     private lateinit var dayPhotoEntity: DayPhotoEntity
     private lateinit var youTubePlayerView: YouTubePlayerView
-    private var isConnect:Boolean = false
+    // private var isConnect: Boolean = false
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -40,18 +42,17 @@ class DetailsFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentDetailsBinding.inflate(inflater, container, false)
-        MyApp.isConnectivity.observe(viewLifecycleOwner){
-            isConnect = it
-            isInternetConnect()
-        }
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        isInternetConnect()
         initYouTube()
-        initView()
+        initView(false)
+        MyApp.isConnectivity.observe(viewLifecycleOwner) { isConnect ->
+            initView(isConnect)
+        }
+
     }
 
     private fun initYouTube() {
@@ -60,41 +61,50 @@ class DetailsFragment : Fragment() {
 
     }
 
-    private fun initView() {
+    private fun initView(isConnect: Boolean) {
+        visibilityErrorInfo(isConnect)
         binding.bottomSheetLayout.titleBottomSheet.text = dayPhotoEntity.title
         binding.bottomSheetLayout.explanationBottomSheet.text = dayPhotoEntity.explanation
 
         if (dayPhotoEntity.mediaType == CONSTANT_VIDEO) {
-            if (isConnect) {
-                isVisibleVideo(true)
-                showNasaVideo(parseUrl(dayPhotoEntity.url))
-            } else {
-                binding.detailsImageLayout.load(R.drawable.you_tube)
-                binding.detailsImageLayout.setOnClickListener {
-                    if (isConnect) {
-                        isVisibleVideo(true)
-                        showNasaVideo(parseUrl(dayPhotoEntity.url))
-                    }
-                }
-            }
-
+            loadVideo(isConnect)
         } else {
-            isVisibleVideo(false)
             binding.detailsImageLayout.setImageURI(getUriImages(requireContext(), dayPhotoEntity))
 
         }
 
     }
 
-    private fun isInternetConnect() {
-         if (isConnect) binding.infoError.infoErrorOnline.visibility = View.GONE
-         else  binding.infoError.infoErrorOnline.visibility = View.VISIBLE
+    private fun loadVideo(connect: Boolean) {
+        if (connect) {
+            Toast.makeText(requireContext(), "isConnect $connect", Toast.LENGTH_SHORT).show()
+            isVisibleVideo(connect)
+            Log.d("@@@", "loadVideo: ${dayPhotoEntity.url}")
+            showNasaVideo(parseUrl(dayPhotoEntity.url))
+        }
+        else {
+            isVisibleVideo(connect)
+            youTubePlayerView.release()
+            binding.detailsImageLayout.load(R.drawable.you_tube)
+        }
+
+
     }
 
+    private fun visibilityErrorInfo(isConnect: Boolean) {
+        if (isConnect) binding.infoError?.infoErrorOnline?.visibility = View.GONE
+        else binding.infoError?.infoErrorOnline?.visibility = View.VISIBLE
+    }
+
+
     private fun showNasaVideo(videoId: String) {
+
         youTubePlayerView.getYouTubePlayerWhenReady(object : YouTubePlayerCallback {
             override fun onYouTubePlayer(youTubePlayer: YouTubePlayer) {
-                youTubePlayer.loadVideo(videoId, 0F)
+                Toast.makeText(requireContext(), "YouTubePlayerCallback", Toast.LENGTH_SHORT).show()
+                youTubePlayer .loadVideo(videoId, 0F)
+
+
             }
         })
 

@@ -11,4 +11,5 @@
     <color name="grey_dark">#292828</color>
     <color name="red">#FF0101</color>
     <color name="error">#80FF0101</color>
+    <color name="load_bg">#66FFFFFF</color>
 </resources>

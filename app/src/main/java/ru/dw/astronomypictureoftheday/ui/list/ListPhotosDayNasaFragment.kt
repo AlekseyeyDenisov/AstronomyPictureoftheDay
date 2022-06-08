@@ -1,6 +1,6 @@
 package ru.dw.astronomypictureoftheday.ui.list
 
-import android.content.Context
+
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -135,7 +135,7 @@ class ListPhotosDayNasaFragment : Fragment(), OnItemListenerPhotoNasa {
 
     private fun initFab() {
         binding.floatingActionButton.setOnClickListener {
-            Log.d("@@@", "initFab: ")
+
            isInternetConnect() {
                if (it)
                 DayPickersDate(requireActivity()).materialDatePicker(object : OnDatePicker {
@@ -144,6 +144,7 @@ class ListPhotosDayNasaFragment : Fragment(), OnItemListenerPhotoNasa {
                         checkDateToRequest(newDate)
                     }
                 })
+               else showToast(getString(R.string.no_internet_connection))
             }
         }
 
