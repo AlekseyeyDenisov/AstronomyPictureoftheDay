@@ -1,5 +1,6 @@
 package ru.dw.astronomypictureoftheday.data.retrofit
 
+import android.util.Log
 import com.google.gson.GsonBuilder
 import retrofit2.Call
 import retrofit2.Callback
@@ -36,10 +37,13 @@ object RetrofitHelper: ListPicture {
                         if (responseListPhotoResponse.isSuccessful) {
                             responseListPhotoResponse.body()?.let {
                                 callbackDetails.onResponseSuccess(it)
+                                Log.d("@@@", "onResponse Success: $it")
                             }
                         } else {
+                            Log.d("@@@", "onResponse else: ")
                             callbackDetails.onFail("Error code: ${responseListPhotoResponse.code()}")
                         }
+
                     }
 
                     override fun onFailure(
@@ -47,6 +51,7 @@ object RetrofitHelper: ListPicture {
                         t: Throwable
                     ) {
                         t.message?.let {error->
+                            Log.d("@@@", "onResponse error: ")
                             callbackDetails.onFail(error)
                         }
 

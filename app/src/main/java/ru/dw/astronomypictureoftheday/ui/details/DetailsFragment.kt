@@ -5,7 +5,6 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import coil.load
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
@@ -15,8 +14,7 @@ import ru.dw.astronomypictureoftheday.MyApp
 import ru.dw.astronomypictureoftheday.R
 import ru.dw.astronomypictureoftheday.data.room.DayPhotoEntity
 import ru.dw.astronomypictureoftheday.databinding.FragmentDetailsBinding
-import ru.dw.astronomypictureoftheday.utils.CONSTANT_VIDEO
-import ru.dw.astronomypictureoftheday.utils.getUriImages
+import ru.dw.astronomypictureoftheday.utils.*
 
 
 const val KEY_BUNDLE_DETAILS = "KEY_BUNDLE_DETAILS"
@@ -61,66 +59,76 @@ class DetailsFragment : Fragment() {
 
     }
 
-    private fun initView(isConnect: Boolean) {
-        visibilityErrorInfo(isConnect)
+    private fun initView(isConnectivity: Boolean) {
+        visibilityErrorInfo(isConnectivity)
         binding.bottomSheetLayout.titleBottomSheet.text = dayPhotoEntity.title
         binding.bottomSheetLayout.explanationBottomSheet.text = dayPhotoEntity.explanation
+        when (dayPhotoEntity.mediaType) {
 
-        if (dayPhotoEntity.mediaType == CONSTANT_VIDEO) {
-            loadVideo(isConnect)
-        } else {
-            binding.detailsImageLayout.setImageURI(getUriImages(requireContext(), dayPhotoEntity))
+            CONSTANT_IMAGE -> howNasaImages()
+
+            CONSTANT_VIDEO -> loadVideo(isConnectivity)
 
         }
-
-    }
-
-    private fun loadVideo(connect: Boolean) {
-        if (connect) {
-            Toast.makeText(requireContext(), "isConnect $connect", Toast.LENGTH_SHORT).show()
-            isVisibleVideo(connect)
-            Log.d("@@@", "loadVideo: ${dayPhotoEntity.url}")
-            showNasaVideo(parseUrl(dayPhotoEntity.url))
-        }
-        else {
-            isVisibleVideo(connect)
-            youTubePlayerView.release()
-            binding.detailsImageLayout.load(R.drawable.you_tube)
-        }
-
-
-    }
-
-    private fun visibilityErrorInfo(isConnect: Boolean) {
-        if (isConnect) binding.infoError?.infoErrorOnline?.visibility = View.GONE
-        else binding.infoError?.infoErrorOnline?.visibility = View.VISIBLE
     }
 
 
-    private fun showNasaVideo(videoId: String) {
+    private fun loadVideo(isConnectivity: Boolean) {
+        when (isConnectivity) {
 
+            CONSTANT_ONLINE -> showNasaVideo(parseUrl(dayPhotoEntity.url), true)
+
+            CONSTANT_OFFLINE -> showImagesYoutube()
+            else -> {
+                Log.d("@@@", "loadVideo else: ")
+            }
+        }
+    }
+
+    private fun howNasaImages() {
+        isVisibleVideo(false)
+        binding.detailsImageLayout.setImageURI(getUriImages(requireContext(), dayPhotoEntity))
+    }
+
+    private fun showNasaVideo(videoId: String, play: Boolean) {
+        Log.d("@@@", "showNasaVideo: $videoId")
+        isVisibleVideo(true)
         youTubePlayerView.getYouTubePlayerWhenReady(object : YouTubePlayerCallback {
             override fun onYouTubePlayer(youTubePlayer: YouTubePlayer) {
-                Toast.makeText(requireContext(), "YouTubePlayerCallback", Toast.LENGTH_SHORT).show()
-                youTubePlayer .loadVideo(videoId, 0F)
-
+                if (play) youTubePlayer.loadVideo(videoId, 0F)
+                else youTubePlayer.pause()
 
             }
         })
-
     }
 
-    private fun isVisibleVideo(visibleVideo: Boolean) = if (visibleVideo) {
-        binding.detailsImageLayout.visibility = View.GONE
-        binding.youtubePlayerView.visibility = View.VISIBLE
-    } else {
-        binding.detailsImageLayout.visibility = View.VISIBLE
-        binding.youtubePlayerView.visibility = View.GONE
+
+    private fun showImagesYoutube() {
+        showNasaVideo(parseUrl(dayPhotoEntity.url), false)
+        isVisibleVideo(false)
+        binding.detailsImageLayout.load(R.drawable.you_tube)
+    }
+
+
+    private fun isVisibleVideo(visibleVideo: Boolean) {
+        if (visibleVideo) {
+            binding.detailsImageLayout.visibility = View.GONE
+            binding.youtubePlayerView.visibility = View.VISIBLE
+        } else {
+            binding.detailsImageLayout.visibility = View.VISIBLE
+            binding.youtubePlayerView.visibility = View.GONE
+        }
     }
 
     private fun parseUrl(idVideo: String): String = idVideo.removeSurrounding(
         "https://www.youtube.com/embed/", "?rel=0"
     )
+
+
+    private fun visibilityErrorInfo(isConnect: Boolean) {
+        if (isConnect) binding.infoError?.infoErrorOnline?.visibility = View.GONE
+        else binding.infoError?.infoErrorOnline?.visibility = View.VISIBLE
+    }
 
     companion object {
         @JvmStatic

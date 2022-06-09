@@ -31,6 +31,7 @@
             android:layout_height="match_parent"
             android:layout_gravity="center"
             android:contentDescription="@string/photo_of_the_day_stub"
+            android:visibility="gone"
             tools:src="@drawable/you_tube" />
 
         <com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView
@@ -38,7 +39,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_gravity="center"
-            android:visibility="invisible" />
+            android:visibility="gone" />
 
 
         <include

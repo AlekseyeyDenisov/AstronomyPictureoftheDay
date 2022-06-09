@@ -2,7 +2,6 @@ package ru.dw.astronomypictureoftheday.ui.list
 
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -39,6 +38,7 @@ class ListPhotosDayNasaFragment : Fragment(), OnItemListenerPhotoNasa {
     private var hashListPhoto: MutableList<DayPhotoEntity> = mutableListOf()
 
 
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -49,6 +49,7 @@ class ListPhotosDayNasaFragment : Fragment(), OnItemListenerPhotoNasa {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
         initViewModel()
         initRecycler()
         swipedItem()
@@ -107,8 +108,11 @@ class ListPhotosDayNasaFragment : Fragment(), OnItemListenerPhotoNasa {
                 R.id.container
             )
         } else {
+            requireActivity().supportFragmentManager.popBackStack()
             requireActivity().supportFragmentManager.beginTransaction()
-                .replace(R.id.details_item_container, DetailsFragment.newInstance(bundle))
+                .add(R.id.details_item_container, DetailsFragment.newInstance(bundle))
+                .setCustomAnimations(R.anim.to_left_in, R.anim.to_left_out, R.anim.to_right_in, R.anim.to_right_out)
+                .addToBackStack(null)
                 .commit()
 
         }
@@ -165,10 +169,14 @@ class ListPhotosDayNasaFragment : Fragment(), OnItemListenerPhotoNasa {
         Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
     }
 
+
     private fun launchFragment(fragment: Fragment, containerId: Int) {
-        requireActivity().supportFragmentManager.beginTransaction()
+        requireActivity().supportFragmentManager.popBackStack()
+        requireActivity().supportFragmentManager
+            .beginTransaction()
+            .setCustomAnimations(R.anim.to_left_in, R.anim.to_left_out, R.anim.to_right_in, R.anim.to_right_out)
             .add(containerId, fragment)
-            .addToBackStack("")
+            .addToBackStack(null)
             .commit()
     }
 

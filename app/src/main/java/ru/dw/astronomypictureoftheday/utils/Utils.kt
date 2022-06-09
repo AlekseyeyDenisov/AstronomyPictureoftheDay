@@ -19,6 +19,9 @@ const val CONSTANT_FORMAT_DATE = "YYYY-MM-dd"
 const val CONSTANT_IMAGES_DIRECTORY = "Images"
 const val CONSTANT_IMAGES_FORMAT = "jpg"
 const val CONSTANT_IMAGES_DOWNLOAD_ERROR = "error_download"
+const val CONSTANT_ONLINE = true
+const val CONSTANT_OFFLINE = false
+
 
 @SuppressLint("SimpleDateFormat", "WeekBasedYear")
 fun getCurrentDays(): String {
