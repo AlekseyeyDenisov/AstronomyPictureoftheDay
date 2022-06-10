@@ -10,11 +10,9 @@ import ru.dw.astronomypictureoftheday.utils.CONSTANT_IMAGE
 import ru.dw.astronomypictureoftheday.utils.CONSTANT_VIDEO
 import ru.dw.astronomypictureoftheday.utils.getUriImages
 
-class HolderAdapterPhotoItem(
-    view: View,
-    private val onItemListener: OnItemListenerPhotoNasa
-) :
-    RecyclerView.ViewHolder(view) {
+class HolderAdapterPhotoItem( view: View, private val onItemListener: OnItemListenerPhotoNasa)
+    :RecyclerView.ViewHolder(view) {
+
     fun bind(dayPhoto: DayPhotoEntity) {
         ItemPhotoDayBinding.bind(itemView).apply {
             titleItem.text = dayPhoto.title
