@@ -5,7 +5,14 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.AnticipateInterpolator
+import android.widget.ImageView
+import androidx.constraintlayout.widget.ConstraintSet
 import androidx.fragment.app.Fragment
+import androidx.transition.ChangeBounds
+import androidx.transition.ChangeImageTransform
+import androidx.transition.TransitionManager
+import androidx.transition.TransitionSet
 import coil.load
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.YouTubePlayerCallback
@@ -25,7 +32,10 @@ class DetailsFragment : Fragment() {
     private val binding get() = _binding!!
     private lateinit var dayPhotoEntity: DayPhotoEntity
     private lateinit var youTubePlayerView: YouTubePlayerView
-    // private var isConnect: Boolean = false
+
+    private var isFullScreen: Boolean = false
+    private var isOpenDescription: Boolean = false
+
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -61,14 +71,13 @@ class DetailsFragment : Fragment() {
 
     private fun initView(isConnectivity: Boolean) {
         visibilityErrorInfo(isConnectivity)
-        binding.bottomSheetLayout.titleBottomSheet.text = dayPhotoEntity.title
-        binding.bottomSheetLayout.explanationBottomSheet.text = dayPhotoEntity.explanation
+        binding.title?.text = dayPhotoEntity.title
+        binding.date?.text = dayPhotoEntity.date
+        binding.explanation?.text = dayPhotoEntity.explanation
+
         when (dayPhotoEntity.mediaType) {
-
-            CONSTANT_IMAGE -> howNasaImages()
-
+            CONSTANT_IMAGE -> nasaImages()
             CONSTANT_VIDEO -> loadVideo(isConnectivity)
-
         }
     }
 
@@ -85,9 +94,58 @@ class DetailsFragment : Fragment() {
         }
     }
 
-    private fun howNasaImages() {
+    private fun nasaImages() {
         isVisibleVideo(false)
         binding.detailsImageLayout.setImageURI(getUriImages(requireContext(), dayPhotoEntity))
+        animateZoom()
+        animateDescription()
+
+    }
+
+    private fun animateDescription() {
+        binding.bottomDescription?.setOnClickListener {
+            isOpenDescription = !isOpenDescription
+            val constrainSet = ConstraintSet()
+            constrainSet.clone(binding.constraintContainer)
+
+            val transition = ChangeBounds()
+
+            transition.interpolator = AnticipateInterpolator(1F)
+            transition.duration = 500
+            TransitionManager.beginDelayedTransition(binding.constraintContainer,transition)
+
+            if (isOpenDescription){
+                constrainSet.clear(R.id.title,ConstraintSet.END)
+                constrainSet.connect(R.id.title,ConstraintSet.START,R.id.details_image_layout,ConstraintSet.START)
+
+                constrainSet.clear(R.id.scroll_explanation,ConstraintSet.TOP)
+                constrainSet.connect(R.id.scroll_explanation,ConstraintSet.BOTTOM,R.id.details_image_layout,ConstraintSet.BOTTOM,300)
+            }else {
+                constrainSet.clear(R.id.title,ConstraintSet.START)
+                constrainSet.connect(R.id.title,ConstraintSet.END,R.id.details_image_layout,ConstraintSet.START)
+                constrainSet.clear(R.id.scroll_explanation,ConstraintSet.BOTTOM)
+                constrainSet.connect(R.id.scroll_explanation,ConstraintSet.TOP,R.id.details_image_layout,ConstraintSet.BOTTOM)
+
+            }
+            constrainSet.applyTo(binding.constraintContainer)
+
+        }
+    }
+
+    private fun animateZoom() {
+        binding.detailsImageLayout.setOnClickListener {
+            isFullScreen = !isFullScreen
+
+            val transitionImageTransform = ChangeImageTransform()
+            transitionImageTransform.duration = 500
+
+            val transitionSet = TransitionSet()
+            transitionSet.addTransition(transitionImageTransform)
+            TransitionManager.beginDelayedTransition(binding.root,transitionSet)
+
+            binding.detailsImageLayout.scaleType = if (isFullScreen)
+            {ImageView.ScaleType.CENTER_CROP}else {ImageView.ScaleType.CENTER_INSIDE}
+        }
     }
 
     private fun showNasaVideo(videoId: String, play: Boolean) {

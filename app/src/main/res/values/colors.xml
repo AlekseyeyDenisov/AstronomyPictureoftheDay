@@ -6,10 +6,11 @@
     <color name="teal_200">#FF03DAC5</color>
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
+    <color name="black_bg">#CC000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="grey">#706E6E</color>
     <color name="grey_dark">#292828</color>
-    <color name="red">#FF0101</color>
+    <color name="red">#B71C1C</color>
     <color name="error">#80FF0101</color>
     <color name="load_bg">#66FFFFFF</color>
 </resources>

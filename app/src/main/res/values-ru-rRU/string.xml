@@ -6,4 +6,6 @@
     <string name="this_date_is">  дата есть</string>
     <string name="photo_of_the_day_stub">Фото дня</string>
     <string name="no_internet_connection">Автономный-режим</string>
+    <string name="visibility_description">Показать описание</string>
+
 </resources>
