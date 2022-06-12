@@ -1,4 +1,4 @@
-package ru.dw.astronomypictureoftheday.ui.details
+package ru.dw.astronomypictureoftheday.view.details
 
 import android.os.Bundle
 import android.util.Log
@@ -79,8 +79,8 @@ class DetailsFragment : Fragment() {
     }
 
     private fun initView() {
-        binding.title?.text = dayPhotoEntity.title
-        binding.date?.text = dayPhotoEntity.date
+        binding.title.text = dayPhotoEntity.title
+        binding.date.text = dayPhotoEntity.date
         binding.bottomSheetLayout.explanationBottomSheet.text = dayPhotoEntity.explanation
         animateDescription()
     }
@@ -136,12 +136,8 @@ class DetailsFragment : Fragment() {
         transition()
         val constrainSet = constraintSet()
         constrainSet.clear(R.id.title, ConstraintSet.END)
-        constrainSet.connect(
-            R.id.title,
-            ConstraintSet.START,
-            R.id.constraint_container,
-            ConstraintSet.START
-        )
+        constrainSet.connect( R.id.title, ConstraintSet.START,R.id.constraint_container, ConstraintSet.START )
+        constrainSet.connect( R.id.title, ConstraintSet.END,R.id.constraint_container, ConstraintSet.END )
         applyConstrain(constrainSet)
     }
 
@@ -149,6 +145,7 @@ class DetailsFragment : Fragment() {
         transition()
         val constrainSet = constraintSet()
         constrainSet.clear(R.id.title, ConstraintSet.START)
+        constrainSet.clear(R.id.title, ConstraintSet.END)
         constrainSet.connect(
             R.id.title,
             ConstraintSet.END,

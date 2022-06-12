@@ -1,4 +1,4 @@
-package ru.dw.astronomypictureoftheday.ui.list
+package ru.dw.astronomypictureoftheday.view.list
 
 
 import android.os.Bundle
@@ -17,14 +17,14 @@ import ru.dw.astronomypictureoftheday.MyApp
 import ru.dw.astronomypictureoftheday.R
 import ru.dw.astronomypictureoftheday.data.room.DayPhotoEntity
 import ru.dw.astronomypictureoftheday.databinding.FragmentListPictureDayBinding
-import ru.dw.astronomypictureoftheday.ui.details.DetailsFragment
-import ru.dw.astronomypictureoftheday.ui.details.KEY_BUNDLE_DETAILS
-import ru.dw.astronomypictureoftheday.ui.list.components.DayPickersDate
-import ru.dw.astronomypictureoftheday.ui.list.components.OnDatePicker
-import ru.dw.astronomypictureoftheday.ui.list.recycler.AdapterPhotoItemNasa
-import ru.dw.astronomypictureoftheday.ui.list.recycler.OnItemListenerPhotoNasa
-import ru.dw.astronomypictureoftheday.ui.list.viewmodel.ListPhotosViewModel
-import ru.dw.astronomypictureoftheday.ui.list.viewmodel.PictureAppState
+import ru.dw.astronomypictureoftheday.view.details.DetailsFragment
+import ru.dw.astronomypictureoftheday.view.details.KEY_BUNDLE_DETAILS
+import ru.dw.astronomypictureoftheday.view.list.components.DayPickersDate
+import ru.dw.astronomypictureoftheday.view.list.components.OnDatePicker
+import ru.dw.astronomypictureoftheday.view.list.recycler.AdapterPhotoItemNasa
+import ru.dw.astronomypictureoftheday.view.list.recycler.OnItemListenerPhotoNasa
+import ru.dw.astronomypictureoftheday.viewmodel.ListPhotosViewModel
+import ru.dw.astronomypictureoftheday.viewmodel.PictureAppState
 import ru.dw.astronomypictureoftheday.utils.getCurrentDays
 
 
