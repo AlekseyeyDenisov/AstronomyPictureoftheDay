@@ -36,7 +36,7 @@ class ListPhotosDayNasaFragment : Fragment(), OnItemListenerPhotoNasa {
     }
     private val adapterPhoto = AdapterPhotoItemNasa(this)
     private var hashListPhoto: MutableList<DayPhotoEntity> = mutableListOf()
-
+    private var isInternet: Boolean = false
 
 
     override fun onCreateView(
@@ -49,7 +49,7 @@ class ListPhotosDayNasaFragment : Fragment(), OnItemListenerPhotoNasa {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
+        initIsInternetConnect()
         initViewModel()
         initRecycler()
         swipedItem()
@@ -58,14 +58,15 @@ class ListPhotosDayNasaFragment : Fragment(), OnItemListenerPhotoNasa {
 
     }
 
-    private fun isInternetConnect(isConnect: (Boolean) ->Unit) {
-        MyApp.isConnectivity.observe(viewLifecycleOwner){
-            if (it){
+    private fun initIsInternetConnect() {
+        MyApp.isConnectivity.observe(viewLifecycleOwner) {
+            isInternet = it
+            if (it) {
                 binding.infoError.infoErrorOnline.visibility = View.GONE
-                isConnect(true)
-            } else{
+
+            } else {
                 binding.infoError.infoErrorOnline.visibility = View.VISIBLE
-                isConnect(false)
+
             }
         }
 
@@ -111,7 +112,12 @@ class ListPhotosDayNasaFragment : Fragment(), OnItemListenerPhotoNasa {
             requireActivity().supportFragmentManager.popBackStack()
             requireActivity().supportFragmentManager.beginTransaction()
                 .add(R.id.details_item_container, DetailsFragment.newInstance(bundle))
-                .setCustomAnimations(R.anim.to_left_in, R.anim.to_left_out, R.anim.to_right_in, R.anim.to_right_out)
+                .setCustomAnimations(
+                    R.anim.to_left_in,
+                    R.anim.to_left_out,
+                    R.anim.to_right_in,
+                    R.anim.to_right_out
+                )
                 .addToBackStack(null)
                 .commit()
 
@@ -139,19 +145,14 @@ class ListPhotosDayNasaFragment : Fragment(), OnItemListenerPhotoNasa {
 
     private fun initFab() {
         binding.floatingActionButton.setOnClickListener {
-
-           isInternetConnect() {
-               if (it)
+            if (isInternet)
                 DayPickersDate(requireActivity()).materialDatePicker(object : OnDatePicker {
-
                     override fun getResultDate(newDate: String) {
                         checkDateToRequest(newDate)
                     }
                 })
-               else showToast(getString(R.string.no_internet_connection))
-            }
+            else showToast(getString(R.string.no_internet_connection))
         }
-
     }
 
     private fun initViewModel() {
@@ -174,23 +175,26 @@ class ListPhotosDayNasaFragment : Fragment(), OnItemListenerPhotoNasa {
         requireActivity().supportFragmentManager.popBackStack()
         requireActivity().supportFragmentManager
             .beginTransaction()
-            .setCustomAnimations(R.anim.to_left_in, R.anim.to_left_out, R.anim.to_right_in, R.anim.to_right_out)
+            .setCustomAnimations(
+                R.anim.to_left_in,
+                R.anim.to_left_out,
+                R.anim.to_right_in,
+                R.anim.to_right_out
+            )
             .add(containerId, fragment)
             .addToBackStack(null)
             .commit()
     }
 
     private fun checkDateToRequest(date: String, firstBoot: Boolean = false) {
-       isInternetConnect() {
-           if (it){
-               lifecycleScope.launch(Dispatchers.IO) {
-                   if (!viewModel.checkDateToRequest(date)) {
-                       launch(Dispatchers.Main) {
-                           if (!firstBoot) showToast(date + " " + getString(R.string.this_date_is))
-                       }
-                   }
-               }
-           }
+        if (isInternet) {
+            lifecycleScope.launch(Dispatchers.IO) {
+                if (!viewModel.checkDateToRequest(date)) {
+                    launch(Dispatchers.Main) {
+                        if (!firstBoot) showToast(date + " " + getString(R.string.this_date_is))
+                    }
+                }
+            }
         }
     }
 
@@ -202,7 +206,6 @@ class ListPhotosDayNasaFragment : Fragment(), OnItemListenerPhotoNasa {
     private fun isOnePanelMode(): Boolean {
         return binding.detailsItemContainer == null
     }
-
 
 
     override fun onDestroy() {
