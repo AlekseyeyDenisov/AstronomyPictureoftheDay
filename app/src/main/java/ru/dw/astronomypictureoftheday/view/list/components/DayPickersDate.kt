@@ -1,4 +1,4 @@
-package ru.dw.astronomypictureoftheday.ui.list.components
+package ru.dw.astronomypictureoftheday.view.list.components
 
 import androidx.fragment.app.FragmentActivity
 import com.google.android.material.datepicker.MaterialDatePicker

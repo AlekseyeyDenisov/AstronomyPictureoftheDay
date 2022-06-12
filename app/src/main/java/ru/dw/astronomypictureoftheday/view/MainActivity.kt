@@ -1,4 +1,4 @@
-package ru.dw.astronomypictureoftheday.ui
+package ru.dw.astronomypictureoftheday.view
 
 import android.content.BroadcastReceiver
 import android.content.IntentFilter
@@ -7,7 +7,7 @@ import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import ru.dw.astronomypictureoftheday.BroadcastReceiverNasa
 import ru.dw.astronomypictureoftheday.R
-import ru.dw.astronomypictureoftheday.ui.list.ListPhotosDayNasaFragment
+import ru.dw.astronomypictureoftheday.view.list.ListPhotosDayNasaFragment
 
 class MainActivity : AppCompatActivity() {
     private val receiverWeather by lazy {

@@ -1,4 +1,4 @@
-package ru.dw.astronomypictureoftheday.ui.list.recycler
+package ru.dw.astronomypictureoftheday.view.list.recycler
 
 import androidx.recyclerview.widget.DiffUtil
 import ru.dw.astronomypictureoftheday.data.room.DayPhotoEntity

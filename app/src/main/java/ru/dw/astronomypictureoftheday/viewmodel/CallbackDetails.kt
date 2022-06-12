@@ -1,4 +1,4 @@
-package ru.dw.astronomypictureoftheday.ui.list.viewmodel
+package ru.dw.astronomypictureoftheday.viewmodel
 
 
 import ru.dw.astronomypictureoftheday.model.DayPhotoResponse
