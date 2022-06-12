@@ -14,6 +14,7 @@ import androidx.transition.ChangeImageTransform
 import androidx.transition.TransitionManager
 import androidx.transition.TransitionSet
 import coil.load
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.YouTubePlayerCallback
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView
@@ -34,8 +35,7 @@ class DetailsFragment : Fragment() {
     private lateinit var youTubePlayerView: YouTubePlayerView
 
     private var isFullScreen: Boolean = false
-    private var isOpenDescription: Boolean = false
-
+    private var isOpenBottomSheet: Boolean = false
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -56,9 +56,10 @@ class DetailsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initYouTube()
-        initView(false)
+        initView()
+
         MyApp.isConnectivity.observe(viewLifecycleOwner) { isConnect ->
-            initView(isConnect)
+            showIsConnectivity(isConnect)
         }
 
     }
@@ -69,16 +70,19 @@ class DetailsFragment : Fragment() {
 
     }
 
-    private fun initView(isConnectivity: Boolean) {
+    private fun showIsConnectivity(isConnectivity: Boolean) {
         visibilityErrorInfo(isConnectivity)
-        binding.title?.text = dayPhotoEntity.title
-        binding.date?.text = dayPhotoEntity.date
-        binding.explanation?.text = dayPhotoEntity.explanation
-
         when (dayPhotoEntity.mediaType) {
             CONSTANT_IMAGE -> nasaImages()
             CONSTANT_VIDEO -> loadVideo(isConnectivity)
         }
+    }
+
+    private fun initView() {
+        binding.title?.text = dayPhotoEntity.title
+        binding.date?.text = dayPhotoEntity.date
+        binding.bottomSheetLayout.explanationBottomSheet.text = dayPhotoEntity.explanation
+        animateDescription()
     }
 
 
@@ -98,38 +102,79 @@ class DetailsFragment : Fragment() {
         isVisibleVideo(false)
         binding.detailsImageLayout.setImageURI(getUriImages(requireContext(), dayPhotoEntity))
         animateZoom()
-        animateDescription()
+
 
     }
 
     private fun animateDescription() {
-        binding.bottomDescription?.setOnClickListener {
-            isOpenDescription = !isOpenDescription
-            val constrainSet = ConstraintSet()
-            constrainSet.clone(binding.constraintContainer)
 
-            val transition = ChangeBounds()
 
-            transition.interpolator = AnticipateInterpolator(1F)
-            transition.duration = 500
-            TransitionManager.beginDelayedTransition(binding.constraintContainer,transition)
+        val standardBottomSheetBehavior =
+            BottomSheetBehavior.from(binding.bottomSheetLayout.bottomSheet)
+        val bottomSheetCallback = object : BottomSheetBehavior.BottomSheetCallback() {
 
-            if (isOpenDescription){
-                constrainSet.clear(R.id.title,ConstraintSet.END)
-                constrainSet.connect(R.id.title,ConstraintSet.START,R.id.details_image_layout,ConstraintSet.START)
+            override fun onStateChanged(bottomSheet: View, newState: Int) {}
 
-                constrainSet.clear(R.id.scroll_explanation,ConstraintSet.TOP)
-                constrainSet.connect(R.id.scroll_explanation,ConstraintSet.BOTTOM,R.id.details_image_layout,ConstraintSet.BOTTOM,300)
-            }else {
-                constrainSet.clear(R.id.title,ConstraintSet.START)
-                constrainSet.connect(R.id.title,ConstraintSet.END,R.id.details_image_layout,ConstraintSet.START)
-                constrainSet.clear(R.id.scroll_explanation,ConstraintSet.BOTTOM)
-                constrainSet.connect(R.id.scroll_explanation,ConstraintSet.TOP,R.id.details_image_layout,ConstraintSet.BOTTOM)
+            override fun onSlide(bottomSheet: View, slideOffset: Float) {
 
+                if (slideOffset == 0F && isOpenBottomSheet) {
+                    showTitleHide()
+
+
+                } else if (slideOffset == 1F && !isOpenBottomSheet) {
+                    showTitle()
+
+                }
             }
-            constrainSet.applyTo(binding.constraintContainer)
-
         }
+        standardBottomSheetBehavior.addBottomSheetCallback(bottomSheetCallback)
+
+
+    }
+
+    private fun showTitle() {
+        transition()
+        val constrainSet = constraintSet()
+        constrainSet.clear(R.id.title, ConstraintSet.END)
+        constrainSet.connect(
+            R.id.title,
+            ConstraintSet.START,
+            R.id.constraint_container,
+            ConstraintSet.START
+        )
+        applyConstrain(constrainSet)
+    }
+
+    private fun showTitleHide() {
+        transition()
+        val constrainSet = constraintSet()
+        constrainSet.clear(R.id.title, ConstraintSet.START)
+        constrainSet.connect(
+            R.id.title,
+            ConstraintSet.END,
+            R.id.constraint_container,
+            ConstraintSet.START
+        )
+        applyConstrain(constrainSet)
+
+    }
+
+    private fun applyConstrain(constrainSet: ConstraintSet) {
+        constrainSet.applyTo(binding.constraintContainer)
+    }
+
+    private fun constraintSet(): ConstraintSet {
+        val constrainSet = ConstraintSet()
+        constrainSet.clone(binding.constraintContainer)
+        return constrainSet
+    }
+
+    private fun transition() {
+        isOpenBottomSheet = !isOpenBottomSheet
+        val transition = ChangeBounds()
+        transition.interpolator = AnticipateInterpolator()
+        transition.duration = 500
+        TransitionManager.beginDelayedTransition(binding.constraintContainer, transition)
     }
 
     private fun animateZoom() {
@@ -141,10 +186,13 @@ class DetailsFragment : Fragment() {
 
             val transitionSet = TransitionSet()
             transitionSet.addTransition(transitionImageTransform)
-            TransitionManager.beginDelayedTransition(binding.root,transitionSet)
+            TransitionManager.beginDelayedTransition(binding.root, transitionSet)
 
-            binding.detailsImageLayout.scaleType = if (isFullScreen)
-            {ImageView.ScaleType.CENTER_CROP}else {ImageView.ScaleType.CENTER_INSIDE}
+            binding.detailsImageLayout.scaleType = if (isFullScreen) {
+                ImageView.ScaleType.CENTER_CROP
+            } else {
+                ImageView.ScaleType.CENTER_INSIDE
+            }
         }
     }
 
@@ -200,5 +248,6 @@ class DetailsFragment : Fragment() {
         super.onDestroy()
         _binding = null
         youTubePlayerView.release()
+
     }
 }
